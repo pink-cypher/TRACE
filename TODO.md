@@ -3,6 +3,16 @@
 - [ ]   Write rest of TODO list
 - [ ]   😎
 
+## Top Priority
+- [ ] Database Connections 
+    - [ ] Defining schema? //someone edit these if these arent actual requirements
+    - [ ] Providing schema?
+- [ ] Project Management Operations
+    - [ ] Create Project
+    - [ ] Save Project
+    - [ ] Edit Project
+    - [ ] Project class itself
+
 ## Project Manager Class
 - [ ]   Contract 1
 - [ ]   Contract 2
@@ -10,6 +20,8 @@
 - [ ]   Contract 4
 - [ ]   Contract 5
 - [ ]   Contract 6
+    ## Subclass Project.py
+    - [ ]   create project class with at least a few variables for demo
 
 ## Project Dashboard Class
 - [ ]   Contract 13
@@ -55,7 +67,7 @@
 - [ ]   Contract 48
 - [ ]   Contract 49
 
-## Database Enumeration Manager Class
+## Database Enumeration Manager Class -Currently being researched by devin
 - [ ]   Contract 50
 - [ ]   Contract 51
 - [ ]   Contract 52

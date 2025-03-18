@@ -9,9 +9,17 @@
     - [ ] Providing schema?
 - [ ] Project Management Operations
     - [ ] Create Project
+        - [ ] Frontend
+        - [ ] Backend
+        - [ ] Tested
     - [ ] Save Project
+        - [ ] Frontend
+        - [ ] Backend
+        - [ ] Tested
     - [ ] Edit Project
-    - [ ] Project class itself
+        - [ ] Frontend
+        - [ ] Backend
+        - [ ] Tested
 
 ## Project Manager Class
 - [ ]   Contract 1

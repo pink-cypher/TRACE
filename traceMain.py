@@ -1,5 +1,5 @@
 from Analyst.analyst import Analyst
-
+from projectManager.projectManager import ProjectManager
 
 analyst = Analyst()
 
@@ -10,24 +10,43 @@ if analystResult:
     analyst = Analyst(analystId=analystResult["ID"], initials=analystResult["initials"],
                     role=analystResult["role"], isLead=analystResult["isLead"], mac=analystResult["mac"])
     
-    print(analyst.initials)
-    print(analyst.mac)
-    print(analyst.islead)
-    print(analyst.role)
+    # print(analyst.initials)
+    # print(analyst.mac)
+    # print(analyst.islead)
+    # print(analyst.role)
 
 else:
+
+
+    print("No analysts found. Please create one.")
+    initials = input("Enter your initials: ")
+    role = input("Enter your role (Lead/Member): ")
+    isLead = input("Are you a Lead? (yes/no): ").strip().lower() == "yes"
     isLead = False
-    print("Landing page. input initials and input lect role")
-    initials = input("Enter initials: ")
-    role = input("1:lead\n2:member\n: ")
-    if role == "1":
-        role = "Lead"
-        isLead = True
-    else:
-        role = "Member"
+
     analystResult = analyst.createAnalyst(initials=initials, role=role, isLead=isLead)
     analyst = Analyst(analystId=analystResult["ID"], initials=analystResult["initials"],
                     role=analystResult["role"], isLead=analystResult["isLead"], mac=analystResult["mac"])
     
-    print(analyst.initials)
+    # print(analyst.initials)
+    # print(analyst.mac)
+    # print(analyst.islead)
+    # print(analyst.role)
     print("Analyst created.")
+
+
+project_manager = ProjectManager(analyst=analyst)
+
+if analyst.islead:
+    project_name = input("Enter Project Name: ").strip()
+    description = input("Enter Project Description: ").strip()
+
+    project_manager.createProject(
+        projectName=project_name,
+        description=description
+    )
+
+else:
+    print("Only Leads can create a project.")
+
+

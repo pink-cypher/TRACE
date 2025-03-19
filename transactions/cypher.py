@@ -29,5 +29,4 @@ class Cypher:
             result = list(tx.run(query, parameters))
             return result  
         except Exception as e:
-            tx.rollback()  
             raise e  

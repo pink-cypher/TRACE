@@ -93,16 +93,16 @@ class DatabaseManager:
         project = self.runCypher(cypher, param)
         return project[0]['project'] if project else None
     
-    # def saveProject(self, updates):
-    #     set_clause = ", ".join([f"project.{key} = ${key}" for key in updates.keys()])
+    def saveProject(self, updates):
+        set_clause = ", ".join([f"project.{key} = ${key}" for key in updates.keys()])
 
-    #     cypher =f"""
-    #             MATCH (project:Project {{ID: $ID}}) 
-    #             SET {set_clause}
-    #             RETURN project
-    #             """
-    #     updatedProject = self.runCypher(cypher, updates, write=True)
-    #     return updatedProject[0] if updatedProject else None
+        cypher =f"""
+                MATCH (project:Project {{ID: $ID}}) 
+                SET {set_clause}
+                RETURN project
+                """
+        updatedProject = self.runCypher(cypher, updates, write=True)
+        return updatedProject[0] if updatedProject else None
     
 
 db = DatabaseManager()

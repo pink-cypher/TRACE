@@ -1,6 +1,45 @@
-from transactions.cypher import Cypher
 from datetime import datetime
+from databasemanager.databasemanager import db
 
+
+class Project:
+    def __init__(self, ID, name, owner, timestamp, status="Active", lockStatus=False, description=""):
+        self.__ID = ID
+        self.__name = name
+        self.__owner = owner
+        self.__timestamp = timestamp
+        self.__status = status
+        self.__lockStatus = lockStatus
+        self.__description = description
+
+
+    def getID(self):
+            return self.__ID
+    def getName(self):
+        return self.__name
+    def setName(self, newName):
+        self.__name = newName
+
+    def getOwner(self):
+        return self.__owner
+
+    def getTimestamp(self):
+        return self.__timestamp
+
+    def getStatus(self):
+        return self.__status
+    def setStatus(self, newStatus):
+        self.__status = newStatus
+
+    def getLockStatus(self):
+        return self.__lockStatus
+    def setLockStatus(self, newLockStatus):
+        self.__lockStatus = newLockStatus
+
+    def getDescription(self):
+        return self.__description
+    def setDescription(self, newDescription):
+        self.__description = newDescription
 
 class ProjectManager:
 
@@ -8,7 +47,7 @@ class ProjectManager:
         self.analyst = analyst
 
     def isLead(self):
-        return self.analyst.islead
+        return self.analyst.getIslead()
     def isOwner(self):
         pass
 
@@ -23,41 +62,14 @@ class ProjectManager:
     # losckStatus is if project is locked or unlocked
     # description is what project will do
     def createProject(self, projectName, description):
+        return db.storeProject(projectName,description,self.analyst.getMac(), datetime.now(), self.analyst.getInitials())
+        
+    def saveProject(self, project):
+        updatedProject = db.saveProject(project)
+        return updatedProject if updatedProject else None
 
-        cypher = """
-            MATCH (pMaxID:Project)
-            WITH coalesce(max(pMaxID.ID),0) + 1 as newID
-            CREATE (project:Project {
-                ID: newID, 
-                name: $projectName,
-                timestamp: $timeStamp,
-                status: $projectStatus,
-                lockStatus: $lockStatus,
-                description: $description
-            })
-            WITH project
-            MATCH (analyst:Analyst {mac: $mac})
-            MERGE (analyst)-[:CREATED]->(project)  
-            RETURN project
-            """
-        param = {
-            "mac": self.analyst.mac,
-            "projectName": projectName,
-            "owner": self.analyst.initials,
-            "timeStamp": datetime.now(),
-            "projectStatus": "Active",
-            "lockStatus": False,
-            "description": description
-            }
-        
-        try:
-            CreatedProject =  Cypher.run_transaction(cypher=cypher, param=param, write=True)
-            return CreatedProject
-        except Exception as e:
-            print(f"Error {e}")
-            return None
-        
-    def saveProject():
-        pass
-    def loadProject():
-        pass
+    def loadProject(self, projectID):
+        project =  db.loadProject(projectID)
+        if project:
+            return Project(**project)
+        return None

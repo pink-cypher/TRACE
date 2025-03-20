@@ -1,0 +1,108 @@
+from .config.neo4j_config import Neo4jDB
+
+class DatabaseManager:
+
+    def __init__(self):
+        self.db = Neo4jDB()
+
+    def runCypher(self, cypher, param=None, write=False):
+
+        session = self.db.get_session()
+
+        try:
+            if write:
+                return session.execute_write(self._run_transaction, cypher, param)
+            else:
+                return session.execute_read(self._run_transaction, cypher, param)
+        finally:
+            session.close()
+    def _run_transaction(self,tx, cypher, param):
+        try:
+            return list(tx.run(cypher, param or {}))
+        except Exception as e:
+            print(f"ERROR: Transaction failed - {e}")
+            raise e 
+
+    def checkAnalyst(self, mac):
+        cypher = """
+                MATCH (analyst:Analyst {mac: $mac})
+                RETURN analyst
+                """
+        anlaystResult = self.runCypher(cypher, {"mac": mac})
+        return anlaystResult[0]["analyst"] if  anlaystResult else None
+    def createAnalyst(self, initials, role, islead, mac):
+        cypher = """
+            MATCH (aMax:Analyst)
+            WITH coalesce(max(aMax.id),0) + 1 as newID
+            CREATE (analyst:Analyst {
+                id: newID,
+                mac: $mac, 
+                initials: $initials, 
+                role: $role,
+                isLead: $isLead
+            })
+            RETURN analyst
+            """
+        
+        param = {
+                "mac": mac,
+                "initials": initials,
+                "role": role,
+                "isLead": islead
+            }
+        analystResult = self.runCypher(cypher, param, write=True)
+        return analystResult[0]["analyst"]  
+    def countAnalyst(self):
+        cypher = """MATCH (a:Analyst) RETURN count(a) AS count"""
+        anlaystResult = self.runCypher(cypher)
+        return anlaystResult[0]['count'] if anlaystResult else 0
+
+    def storeProject(self, projectName, description, mac, timestamp, owner):
+        cypher = """
+            MATCH (pMaxID:Project)
+            WITH coalesce(max(pMaxID.ID),0) + 1 AS newID
+            CREATE (project:Project {
+                ID: newID,
+                name: $projectName,
+                owner: $owner,
+                timestamp: $timestamp,
+                status: "Active",
+                lockStatus: False,
+                description: $description
+            })
+            WITH project
+            MATCH (analyst:Analyst {mac: $mac})
+            MERGE (analyst)-[:CREATED]->(project)  
+            RETURN project
+        """
+        param = {
+            "projectName": projectName,
+            "owner": owner,
+            "timestamp":timestamp,
+            "mac": mac,
+            "description": description
+        }
+        return True if self.runCypher(cypher, param, write=True) else False
+    def loadProject(self, projectID):
+        if projectID:
+            if projectID:
+                cypher = "MATCH (project:Project {ID: $projectID}) RETURN project"
+                param = {"projectID": projectID}
+        else:
+            return None
+        project = self.runCypher(cypher, param)
+        return project[0]['project'] if project else None
+    
+    # def saveProject(self, updates):
+    #     set_clause = ", ".join([f"project.{key} = ${key}" for key in updates.keys()])
+
+    #     cypher =f"""
+    #             MATCH (project:Project {{ID: $ID}}) 
+    #             SET {set_clause}
+    #             RETURN project
+    #             """
+    #     updatedProject = self.runCypher(cypher, updates, write=True)
+    #     return updatedProject[0] if updatedProject else None
+    
+
+db = DatabaseManager()

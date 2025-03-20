@@ -1,56 +1,48 @@
-import os
-from transactions.cypher import Cypher
-
+from getmac import get_mac_address
+from databasemanager.databasemanager import db
 
 class Analyst:
 
-    def __init__(self, analystId=None, initials=None, role=None, isLead=None, mac=None):
-        self.analystID = analystId
-        self.initials = initials
-        self.role = role
-        self.islead = isLead
-        self.mac = mac if mac else self.getMac()
+    def __init__(self, id=None, initials=None, role=None, isLead=None, mac=None):
+        self.__analystID = id
+        self.__initials = initials
+        self.__role = role
+        self.__islead = isLead
+        self.__mac = mac if mac else get_mac_address()
+
+    def getAnalystID(self):
+        return self.__analystID
+    def setAnalystID(self,newID):
+        self.__analystID = newID
+
+    def getInitials(self):
+        return self.__initials
+    def setInitials(self, initials):
+        self.__initials = initials
+
+    def getRole(self):
+        return self.__role
+    def setRole(self, role):
+        self.__role = role
+
+    def getIslead(self):
+        return self.__islead
+    def setIslead(self, islead):
+        self.__islead = islead
 
     def getMac(self):
-        return [line.split()[-1] for line in (x.strip() for x in os.popen("ifconfig | grep ether")) if line][0]
+        return self.__mac
 
     def checkAnalyst(self):
-        
-        cypher = """
-            MATCH (a:Analyst) RETURN count(a) AS count
-            """
-        result = Cypher.run_transaction(cypher)
+        if db.countAnalyst() == 0:
+            return None
+        analystResult = db.checkAnalyst(self.getMac())
+        return analystResult
 
-        if result[0]["count"] == 0:
-            return None 
-        
-        cypher = """
-                MATCH (analyst:Analyst {mac: $mac})
-                RETURN analyst
-                """
-        anlaystResult = Cypher.run_transaction(cypher, {"mac": self.mac})
-        return anlaystResult[0]["analyst"] if  anlaystResult else None
-    
-    def createAnalyst(self, initials, role, isLead):
-        cypher = """
-            MATCH (aMax:Analyst)
-            WITH coalesce(max(aMax.ID),0) + 1 as newID
-            CREATE (a:Analyst {
-                ID: newID,
-                mac: $mac, 
-                initials: $initials, 
-                role: $role,
-                isLead: $isLead
-            })
-            RETURN a
-            """
-        
-        param = {
-                "mac": self.mac,
-                "initials": initials,
-                "role": role,
-                "isLead": isLead
-            }
-        analystResult = Cypher.run_transaction(cypher, param, write=True)
-        return analystResult[0]["a"]
-
+    def createAnalyst(self, initials, role, islead):
+        self.setInitials(initials)
+        self.setRole(role)
+        self.setIslead(islead)
+        createdAnalyst = db.createAnalyst(self.getInitials(), self.getRole(), self.getIslead(),self.getMac())
+        self.setAnalystID(createdAnalyst["ID"])
+        return True if createdAnalyst else False

@@ -5,7 +5,7 @@ from neo4j import GraphDatabase
 from neo4j.exceptions import Neo4jError
 
 class Neo4jDB:
-    def __init__(self, config_file, max_retries=3, retry_delay=3):
+    def __init__(self, config_file='config.ini', max_retries=3, retry_delay=3):
     
         config_path = os.path.join(os.path.dirname(__file__), config_file)
 
@@ -64,4 +64,4 @@ class Neo4jDB:
             self.driver.close()
             print("Neo4j driver closed.")
 
-neo4jConn = Neo4jDB('config.ini')
+neo4jConn = Neo4jDB()

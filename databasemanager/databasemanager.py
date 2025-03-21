@@ -57,7 +57,7 @@ class DatabaseManager:
         anlaystResult = self.runCypher(cypher)
         return anlaystResult[0]['count'] if anlaystResult else 0
 
-    def storeProject(self, projectName, description, mac, timestamp, owner):
+    def storeProject(self, projectName, description, mac, owner):
         cypher = """
             MATCH (pMaxID:Project)
             WITH coalesce(max(pMaxID.ID),0) + 1 AS newID
@@ -65,7 +65,7 @@ class DatabaseManager:
                 ID: newID,
                 name: $projectName,
                 owner: $owner,
-                timestamp: $timestamp,
+                timestamp: datetime(),
                 status: "Active",
                 lockStatus: False,
                 description: $description
@@ -78,7 +78,6 @@ class DatabaseManager:
         param = {
             "projectName": projectName,
             "owner": owner,
-            "timestamp":timestamp,
             "mac": mac,
             "description": description
         }
@@ -105,9 +104,12 @@ class DatabaseManager:
     
     def deleteProject(self, projectID):
         cypher = """
-                MATCH (project:Project {ID: $ID})
-                WITH project
-                DETACH DELETE project
+                MATCH (p:Project {ID: $ID})
+                OPTIONAL MATCH (p)-[r]-(n)
+                WHERE NOT n:Analyst
+                DETACH DELETE r, n
+                WITH p
+                DETACH DELETE p
                 RETURN true AS deleted
                 """
         result = self.runCypher(cypher, {'ID':projectID}, write=True)

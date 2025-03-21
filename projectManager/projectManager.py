@@ -1,4 +1,3 @@
-from datetime import datetime
 from databasemanager.databasemanager import db
 
 
@@ -55,7 +54,7 @@ class ProjectManager:
         pass
 
     def createProject(self, projectName, description):
-        return db.storeProject(projectName,description,self.analyst.getMac(), datetime.now(), self.analyst.getInitials())      
+        return db.storeProject(projectName,description,self.analyst.getMac(), self.analyst.getInitials())      
     def saveProject(self, project):
         updates = {
             "ID": project.getID(),

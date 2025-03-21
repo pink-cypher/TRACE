@@ -38,8 +38,8 @@ else:
     print("Project not found or access denied.")
 
 
-if project_manager.deleteOrArchiveProject(loadedProject.getID(), False):
-    print("Archived")
+if project_manager.deleteOrArchiveProject(loadedProject.getID(), True):
+    print("Deleted")
 # loadedProject.setDescription("Updated project description.")
 # loadedProject.setStatus("Archived")
 # loadedProject.setLockStatus(True)
@@ -58,20 +58,20 @@ if project_manager.deleteOrArchiveProject(loadedProject.getID(), False):
     # choice = input("Enter your choice: ").strip()
 
     # if choice == "1":  # Create a project
-    #     if analyst.getIslead():
-    #         project_name = input("Enter Project Name: ").strip()
-    #         description = input("Enter Project Description: ").strip()
+# if analyst.getIslead():
+#     project_name = input("Enter Project Name: ").strip()
+#     description = input("Enter Project Description: ").strip()
 
-    #         isCreated = project_manager.createProject(
-    #             projectName=project_name,
-    #             description=description
-    #         )
-    #         if isCreated:
-    #             print("Project Created Successfully!")
-    #         else:
-    #             print("Failed to create project.")
-    #     else:
-    #         print("Only Leads can create a project.")
+#     isCreated = project_manager.createProject(
+#         projectName=project_name,
+#         description=description
+#     )
+#     if isCreated:
+#         print("Project Created Successfully!")
+#     else:
+#         print("Failed to create project.")
+# else:
+#     print("Only Leads can create a project.")
 
     # elif choice == "2":  # Load a project
     #     projectID = input("Enter Project ID: ").strip()

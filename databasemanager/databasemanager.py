@@ -103,6 +103,28 @@ class DatabaseManager:
         updatedProject = self.runCypher(cypher, updates, write=True)
         return updatedProject[0] if updatedProject else None
     
-
+    def deleteProject(self, projectID):
+        cypher = """
+                MATCH (project:Project {ID: $ID})
+                WITH project
+                DETACH DELETE project
+                RETURN true AS deleted
+                """
+        result = self.runCypher(cypher, {'ID':projectID}, write=True)
+        if result and result[0]['deleted']:
+            return True
+        else:
+            return False
+        
+    def archiveProject(self, projectID):
+        cypher = """
+                MATCH (project:Project {ID: $ID})
+                SET project.status = "Archived"
+                """
+        result = self.runCypher(cypher, {'ID':projectID}, write=True)
+        if result and result[0]['deleted']:
+            return True
+        else:
+            return False
 
 db = DatabaseManager()

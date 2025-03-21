@@ -38,12 +38,13 @@ else:
     print("Project not found or access denied.")
 
 
+if project_manager.deleteOrArchiveProject(loadedProject.getID(), False):
+    print("Archived")
+# loadedProject.setDescription("Updated project description.")
+# loadedProject.setStatus("Archived")
+# loadedProject.setLockStatus(True)
 
-loadedProject.setDescription("Updated project description.")
-loadedProject.setStatus("Archived")
-loadedProject.setLockStatus(True)
-
-isSaved = project_manager.saveProject(loadedProject)
+# isSaved = project_manager.saveProject(loadedProject)
 
 
 

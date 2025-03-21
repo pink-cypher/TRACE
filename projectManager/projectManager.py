@@ -54,22 +54,25 @@ class ProjectManager:
     def isMember(self):
         pass
 
-    # Project ID is automatically generated in DB and is unique
-    # project name is unique
-    # project owner who created the project
-    # timestamp is when project was created
-    # projectStatus is if project is "archieved or active"
-    # losckStatus is if project is locked or unlocked
-    # description is what project will do
     def createProject(self, projectName, description):
-        return db.storeProject(projectName,description,self.analyst.getMac(), datetime.now(), self.analyst.getInitials())
-        
+        return db.storeProject(projectName,description,self.analyst.getMac(), datetime.now(), self.analyst.getInitials())      
     def saveProject(self, project):
-        updatedProject = db.saveProject(project)
-        return updatedProject if updatedProject else None
+        updates = {
+            "ID": project.getID(),
+            "name": project.getName(),
+            "owner": project.getOwner(),
+            "timestamp": project.getTimestamp(),
+            "status": project.getStatus(),
+            "lockStatus": project.getLockStatus(),
+            "description": project.getDescription()
+        }
+        print(updates)
 
+        updatedProject = db.saveProject(updates)
+        return updatedProject if updatedProject else None
     def loadProject(self, projectID):
-        project =  db.loadProject(projectID)
+        project =  db.retrieveProject(projectID)
         if project:
             return Project(**project)
         return None
+

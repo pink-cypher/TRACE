@@ -1,45 +1,51 @@
 <script>
-	let initials = "";
+	import { initials, role, isLoggedIn } from '$lib/stores/sessionStore';
+	let inputInitials = "";
 	let showRoleButtons = false;
 	let errorMessage = "";
 
 	async function handleKeyPress(event) {
-		if (event.key === "Enter" && initials.trim() !== "") {
+		if (event.key === "Enter" && inputInitials.trim() !== "") {
 			try {
 				const res = await fetch("/api/initials", {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
-					body: JSON.stringify({ initials }),
+					body: JSON.stringify({ initials: inputInitials }),
 				});
 
 				const data = await res.json();
-
 				if (data.capitalized_initials === true) {
-					showRoleButtons = true;
 					errorMessage = "";
+					showRoleButtons = true;
 				} else {
+					errorMessage = "🚫 User does not exist. Please try again or create an account.";
 					showRoleButtons = false;
-					errorMessage = "🚫 User does not exist. Please try again or create a new account.";
 				}
 			} catch (err) {
-				console.error("Error sending initials:", err);
-				errorMessage = "⚠️ Server error. Please try again.";
+				errorMessage = "⚠️ Server error. Try again.";
 			}
 		}
 	}
+
+	function selectRole(r) {
+		initials.set(inputInitials.toUpperCase());
+		role.set(r);
+		isLoggedIn.set(true);
+		alert(`Logged in as ${r}`);
+	}
 </script>
 
-<div class="greeting-container">
-	<h1>Hello{initials ? `, ${initials}` : ""}</h1>
+<div class="login-container">
+	<h1>Hello{inputInitials ? `, ${inputInitials}` : ""}</h1>
 
 	{#if errorMessage}
 		<div class="popup-message">{errorMessage}</div>
 	{/if}
 
 	<input
-		bind:value={initials}
+		bind:value={inputInitials}
 		placeholder="Enter your initials"
 		class="initials-input"
 		on:keydown={handleKeyPress}
@@ -53,8 +59,8 @@
 		</div>
 
 		<div class="role-buttons">
-			<button class="role-button slide-left">Lead</button>
-			<button class="role-button slide-right">Analyst</button>
+			<button class="role-button slide-left" on:click={() => selectRole('Lead')}>Lead</button>
+			<button class="role-button slide-right" on:click={() => selectRole('Analyst')}>Analyst</button>
 		</div>
 	{/if}
 </div>
@@ -62,7 +68,7 @@
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@700&display=swap');
 
-	.greeting-container {
+	.login-container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -85,20 +91,7 @@
 		border-radius: 8px;
 		margin-bottom: 1rem;
 		font-size: 1rem;
-		animation: fadeIn 0.3s ease-in-out;
 		text-align: center;
-		max-width: 300px;
-	}
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateY(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
 	}
 
 	.initials-input {

@@ -23,35 +23,36 @@ class DatabaseManager:
             print(f"ERROR: Transaction failed - {e}")
             raise e 
 
-    def checkAnalyst(self, mac):
+    def checkAnalyst(self, initials):
         cypher = """
-                MATCH (analyst:Analyst {mac: $mac})
+                MATCH (analyst:Analyst {initials: $initials})
                 RETURN analyst
                 """
-        anlaystResult = self.runCypher(cypher, {"mac": mac})
-        return anlaystResult[0]["analyst"] if  anlaystResult else None
-    def createAnalyst(self, initials, role, islead, mac):
+        return bool(self.runCypher(cypher, {"initials": initials}))
+
+    def createAnalyst(self, initials, role):
         cypher = """
             MATCH (aMax:Analyst)
             WITH coalesce(max(aMax.id),0) + 1 as newID
             CREATE (analyst:Analyst {
                 id: newID,
-                mac: $mac, 
                 initials: $initials, 
                 role: $role,
-                isLead: $isLead
             })
             RETURN analyst
             """
         
         param = {
-                "mac": mac,
                 "initials": initials,
-                "role": role,
-                "isLead": islead
+                "role": role
             }
         analystResult = self.runCypher(cypher, param, write=True)
         return analystResult[0]["analyst"]  
+    
+    def loadAnalyst(self, initials):
+
+        pass
+
     def countAnalyst(self):
         cypher = """MATCH (a:Analyst) RETURN count(a) AS count"""
         anlaystResult = self.runCypher(cypher)

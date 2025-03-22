@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 
 	function handleSignIn() {
-		goto('/Login/Signin'); 
+		goto('/Login'); 
 	}
 </script>
 
@@ -16,7 +16,7 @@
 		Sign In
 	</button>
 
-	<a href="/Login/CreateAccount" class="new-account-link">
+	<a href="/Login" class="new-account-link">
 		New Account
 	</a>
 </div>

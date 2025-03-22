@@ -1,0 +1,65 @@
+/* Base color styles */
+.success {
+    background-color: #28a745;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+  }
+  .error {
+    background-color: #dc3545;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 5px;
+  }
+  
+  /* Deuteranopia */
+  .deuteranopia .success {
+    background-color: #009E73;
+  }
+  .deuteranopia .error {
+    background-color: #E69F00;
+  }
+  
+  /* Protanopia */
+  .protanopia .success {
+    background-color: #56B4E9;
+  }
+  .protanopia .error {
+    background-color: #000;
+    color: white;
+  }
+  
+  /* Tritanopia */
+  .tritanopia .success {
+    background-color: #CC79A7;
+  }
+  .tritanopia .error {
+    background-color: #F0E442;
+    color: black;
+  }
+  
+  /* Achromatopsia */
+  .achromatopsia .success,
+  .achromatopsia .error {
+    background-color: #AAAAAA;
+    color: black;
+  }
+
+
+
+.trace-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: clamp(3rem, 10vw, 10rem);;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    height: 100vh;
+    overflow: hidden;
+    position: relative;
+    color: #000000;
+    text-shadow: 0 2px 0 #fff, 0 4px 10px rgba(0, 0, 0, 0.2);
+    background-color: #a3a2a2ea; /* light gray background */
+
+  }
+ 

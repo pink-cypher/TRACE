@@ -42,5 +42,6 @@ class Analyst:
         return True if createdAnalyst else False
     
     def loadAnalyst(self,initials):
-        return db.load
-        pass
+        r =  db.loadAnalyst(initials)
+        print(r)
+        return r

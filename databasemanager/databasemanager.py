@@ -32,10 +32,7 @@ class DatabaseManager:
 
     def createAnalyst(self, initials, role):
         cypher = """
-            MATCH (aMax:Analyst)
-            WITH coalesce(max(aMax.id),0) + 1 as newID
             CREATE (analyst:Analyst {
-                id: newID,
                 initials: $initials, 
                 role: $role,
             })
@@ -50,8 +47,11 @@ class DatabaseManager:
         return analystResult[0]["analyst"]  
     
     def loadAnalyst(self, initials):
-
-        pass
+        cypher = """
+                MATCH (analyst:Analyst {initials: $initials})
+                RETURN analyst {.*, id: elementid(analyst)}
+                """
+        return self.runCypher(cypher, {"initials": initials})[0]['analyst']
 
     def countAnalyst(self):
         cypher = """MATCH (a:Analyst) RETURN count(a) AS count"""

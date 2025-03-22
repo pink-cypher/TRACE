@@ -25,7 +25,10 @@ analyst = Analyst()
 initals = 'RP'
 analystResult = analyst.checkAnalyst(initals)
 
-print(analystResult)
+loaded = analyst.loadAnalyst(initals)
+
+analyst = Analyst(**loaded)
+print(vars(analyst))
 
 
 

@@ -44,3 +44,5 @@ class Analyst:
     def loadAnalyst(self,initials):
         return db.loadAnalyst(initials)
        
+    def saveAnalyst(self):
+        return True if db.saveAnalyst(self.getInitials(), self.getRole(), self.getIslead()) else False

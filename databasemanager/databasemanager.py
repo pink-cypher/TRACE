@@ -55,8 +55,17 @@ class DatabaseManager:
         anlaystResult = self.runCypher(cypher)
         return anlaystResult[0]['count'] if anlaystResult else 0
     def saveAnalyst(self, initials, role, islead):
+        cypher = """MATCH  (a:Analyst {initials: $initials})
+                    SET a.role = $role, a.isLead = $islead
+                    RETURN a
+                 """
+        param = {
+                "initials": initials,
+                "role": role,
+                "islead":islead
+            }
+        return True if self.runCypher(cypher, param, write=True) else False
 
-        pass
     def storeProject(self, projectName, description, owner):
         cypher = """
             CREATE (project:Project {
@@ -99,8 +108,6 @@ class DatabaseManager:
                 """
         return True if self.runCypher(cypher, updates, write=True) else False
     
-
-
 
     def deleteProject(self, projectID):
         cypher = """

@@ -31,16 +31,24 @@ analyst = Analyst(**loaded)
 print(vars(analyst))
 
 
-pm = ProjectManager(analyst)
-p = pm.loadProject('4:38bff53d-c4fa-4770-be39-af8a418ac8e6:2')
-p.setDescription("Updated testing with saving/updating project")
-p.setStatus('archived')
-p.setLockStatus(True)
 
-po = pm.saveProject(p)
+analyst.setRole("Analyst")
+analyst.setIslead(False)
 
-print(po)
-print(p.getDescription())
+analyst.saveAnalyst()
+
+print(vars(analyst))
+
+# pm = ProjectManager(analyst)
+# p = pm.loadProject('4:38bff53d-c4fa-4770-be39-af8a418ac8e6:2')
+# p.setDescription("Updated testing with saving/updating project")
+# p.setStatus('archived')
+# p.setLockStatus(True)
+
+# po = pm.saveProject(p)
+
+# print(po)
+# print(p.getDescription())
 
 
 # p  = pm.createProject(pname, des)

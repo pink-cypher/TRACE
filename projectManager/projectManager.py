@@ -1,44 +1,5 @@
 from databasemanager.databasemanager import db
-
-
-class Project:
-    def __init__(self, ID, name, owner, timestamp, status="Active", lockStatus=False, description=""):
-        self.__ID = ID
-        self.__name = name
-        self.__owner = owner
-        self.__timestamp = timestamp
-        self.__status = status
-        self.__lockStatus = lockStatus
-        self.__description = description
-
-
-    def getID(self):
-            return self.__ID
-    def getName(self):
-        return self.__name
-    def setName(self, newName):
-        self.__name = newName
-
-    def getOwner(self):
-        return self.__owner
-
-    def getTimestamp(self):
-        return self.__timestamp
-
-    def getStatus(self):
-        return self.__status
-    def setStatus(self, newStatus):
-        self.__status = newStatus
-
-    def getLockStatus(self):
-        return self.__lockStatus
-    def setLockStatus(self, newLockStatus):
-        self.__lockStatus = newLockStatus
-
-    def getDescription(self):
-        return self.__description
-    def setDescription(self, newDescription):
-        self.__description = newDescription
+from projectManager.project import Project
 
 class ProjectManager:
 
@@ -54,10 +15,10 @@ class ProjectManager:
         pass
 
     def createProject(self, projectName, description):
-        return db.storeProject(projectName,description,self.analyst.getMac(), self.analyst.getInitials())      
+        return db.storeProject(projectName,description, self.analyst.getInitials()) 
+         
     def saveProject(self, project):
         updates = {
-            "ID": project.getID(),
             "name": project.getName(),
             "owner": project.getOwner(),
             "timestamp": project.getTimestamp(),
@@ -65,15 +26,13 @@ class ProjectManager:
             "lockStatus": project.getLockStatus(),
             "description": project.getDescription()
         }
-        print(updates)
 
-        updatedProject = db.saveProject(updates)
-        return updatedProject if updatedProject else None
+        return db.saveProject(updates,project.getID()) if True else False
+    
     def loadProject(self, projectID):
         project =  db.retrieveProject(projectID)
-        if project:
-            return Project(**project)
-        return None
+
+        return Project(**project) if project else None
 
     def deleteOrArchiveProject(self, projectID, permanent):
 

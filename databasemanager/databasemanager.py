@@ -29,7 +29,6 @@ class DatabaseManager:
                 RETURN analyst
                 """
         return bool(self.runCypher(cypher, {"initials": initials}))
-
     def createAnalyst(self, initials, role):
         cypher = """
             CREATE (analyst:Analyst {
@@ -44,26 +43,23 @@ class DatabaseManager:
                 "role": role
             }
         analystResult = self.runCypher(cypher, param, write=True)
-        return analystResult[0]["analyst"]  
-    
+        return analystResult[0]["analyst"]     
     def loadAnalyst(self, initials):
         cypher = """
                 MATCH (analyst:Analyst {initials: $initials})
                 RETURN analyst {.*, id: elementid(analyst)}
                 """
         return self.runCypher(cypher, {"initials": initials})[0]['analyst']
-
     def countAnalyst(self):
         cypher = """MATCH (a:Analyst) RETURN count(a) AS count"""
         anlaystResult = self.runCypher(cypher)
         return anlaystResult[0]['count'] if anlaystResult else 0
+    def saveAnalyst(self, initials, role, islead):
 
-    def storeProject(self, projectName, description, mac, owner):
+        pass
+    def storeProject(self, projectName, description, owner):
         cypher = """
-            MATCH (pMaxID:Project)
-            WITH coalesce(max(pMaxID.ID),0) + 1 AS newID
             CREATE (project:Project {
-                ID: newID,
                 name: $projectName,
                 owner: $owner,
                 timestamp: datetime(),
@@ -72,37 +68,40 @@ class DatabaseManager:
                 description: $description
             })
             WITH project
-            MATCH (analyst:Analyst {mac: $mac})
+            MATCH (analyst:Analyst {initials: $owner})
             MERGE (analyst)-[:CREATED]->(project)  
-            RETURN project
+            RETURN project {.*, id: elementid(project)}
         """
         param = {
             "projectName": projectName,
             "owner": owner,
-            "mac": mac,
-            "description": description
+            "description": description,
+            "initials":owner
         }
         return True if self.runCypher(cypher, param, write=True) else False
     def retrieveProject(self, projectID):
         if projectID:
             if projectID:
-                cypher = "MATCH (project:Project {ID: $projectID}) RETURN project"
+                cypher = "MATCH (project:Project) WHERE elementId(project)= $projectID RETURN project {.*, id: elementId(project)}"
                 param = {"projectID": projectID}
         else:
             return None
         project = self.runCypher(cypher, param)
         return project[0]['project'] if project else None
-    def saveProject(self, updates):
+    def saveProject(self, updates, id):
         set_clause = ", ".join([f"project.{key} = ${key}" for key in updates.keys()])
-
+        updates["id"] = id
         cypher =f"""
-                MATCH (project:Project {{ID: $ID}}) 
+                MATCH (project:Project) 
+                WHERE elementId(project) = $id
                 SET {set_clause}
                 RETURN project
                 """
-        updatedProject = self.runCypher(cypher, updates, write=True)
-        return updatedProject[0] if updatedProject else None
+        return True if self.runCypher(cypher, updates, write=True) else False
     
+
+
+
     def deleteProject(self, projectID):
         cypher = """
                 MATCH (p:Project {ID: $ID})

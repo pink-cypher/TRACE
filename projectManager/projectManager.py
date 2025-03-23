@@ -34,11 +34,7 @@ class ProjectManager:
 
         return Project(**project) if project else None
 
-    def deleteOrArchiveProject(self, projectID, permanent):
+    def deleteProject(self, projectID):
 
-        if permanent: # delete
-            success = db.deleteProject(projectID)
-            return True if success else False
-        else: # archieve
-            result = db.archiveProject(projectID)
-            return result if result else False
+        success = db.deleteProject(projectID)
+        return True if success else False

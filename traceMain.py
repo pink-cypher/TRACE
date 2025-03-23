@@ -32,14 +32,29 @@ print(vars(analyst))
 
 
 
-analyst.setRole("Analyst")
-analyst.setIslead(False)
 
-analyst.saveAnalyst()
 
-print(vars(analyst))
 
-# pm = ProjectManager(analyst)
+# analyst.setRole("Analyst")
+# analyst.setIslead(False)
+
+# analyst.saveAnalyst()
+
+# print(vars(analyst))
+
+pm = ProjectManager(analyst)
+id = "4:38bff53d-c4fa-4770-be39-af8a418ac8e6:4"
+
+pro = pm.loadProject(id)
+print(vars(pro))
+
+
+pm.deleteOrArchiveProject(id, False)
+pro = pm.loadProject(id)
+print(vars(pro))
+
+
+
 # p = pm.loadProject('4:38bff53d-c4fa-4770-be39-af8a418ac8e6:2')
 # p.setDescription("Updated testing with saving/updating project")
 # p.setStatus('archived')

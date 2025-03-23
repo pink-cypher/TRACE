@@ -38,10 +38,7 @@ class ProjectManager:
 
         if permanent: # delete
             success = db.deleteProject(projectID)
-            if success:
-                return True
-            else:
-                return False
+            return True if success else False
         else: # archieve
             result = db.archiveProject(projectID)
             return result if result else False

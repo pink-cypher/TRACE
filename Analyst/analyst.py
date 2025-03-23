@@ -34,15 +34,26 @@ class Analyst:
         return db.checkAnalyst(initals)
 
     def createAnalyst(self, initials, role, islead):
-        self.setInitials(initials)
-        self.setRole(role)
-        self.setIslead(islead)
-        createdAnalyst = db.createAnalyst(self.getInitials(), self.getRole(), self.getIslead())
-        self.setAnalystID(createdAnalyst["ID"])
-        return True if createdAnalyst else False
+
+        createdAnalyst = db.createAnalyst(initials, role, islead)
+        if createdAnalyst:
+            self.setInitials(createdAnalyst.get("initials"))
+            self.setRole(createdAnalyst.get("role"))
+            self.setIslead(createdAnalyst.get("islead"))
+            self.setAnalystID(createdAnalyst.get("id"))
+            return True
+        else:
+            False
+
     
     def loadAnalyst(self,initials):
         return db.loadAnalyst(initials)
        
-    def saveAnalyst(self):
-        return True if db.saveAnalyst(self.getInitials(), self.getRole(), self.getIslead()) else False
+    def saveAnalyst(self, initials, role, islead):
+
+        if db.saveAnalyst(initials, role, islead):
+            self.setRole(role)
+            self.setIslead(islead)
+            return True
+        else:
+            False

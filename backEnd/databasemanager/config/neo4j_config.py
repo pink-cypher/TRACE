@@ -1,21 +1,15 @@
-import os
+# backEnd/databasemanager/config.py
+
 import time
-import configparser
 from neo4j import GraphDatabase
 from neo4j.exceptions import Neo4jError
+from databasemanager.config.config_loader import NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD 
 
 class Neo4jDB:
-    def __init__(self, config_file='config.ini', max_retries=3, retry_delay=3):
-    
-        config_path = os.path.join(os.path.dirname(__file__), config_file)
-
-        self.config = configparser.ConfigParser()
-        self.config.read(config_path)
-
-        # Read credentials
-        self.uri = self.config.get('NEO4J', 'URI')
-        self.user = self.config.get('NEO4J', 'USER')
-        self.password = self.config.get('NEO4J', 'PASSWORD')
+    def __init__(self, max_retries=3, retry_delay=3):
+        self.uri = NEO4J_URI
+        self.user = NEO4J_USER
+        self.password = NEO4J_PASSWORD
 
         self.driver = None 
         self.max_retries = max_retries

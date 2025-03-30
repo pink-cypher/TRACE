@@ -24,7 +24,6 @@ class Analyst:
     def getIslead(self):
         return self.getRole() == "Lead"
 
-
     def checkAnalyst(self, initals):
         if db.countAnalyst() == 0:
             return False
@@ -33,15 +32,8 @@ class Analyst:
     def createAnalyst(self, initials, role):
 
         createdAnalyst = db.createAnalyst(initials, role)
-        if createdAnalyst:
-            self.setInitials(createdAnalyst.get("initials"))
-            self.setRole(createdAnalyst.get("role"))
-            self.setAnalystID(createdAnalyst.get("id"))
-            return True
-        else:
-            return False
+        return createdAnalyst if True else False
 
-    
     def loadAnalyst(self,initials):
         return db.loadAnalyst(initials)
        

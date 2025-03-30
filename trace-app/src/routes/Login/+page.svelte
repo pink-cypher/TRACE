@@ -1,36 +1,90 @@
 <script>
 	let initials = "";
 	let role = "Analyst";
+	let message = "";
+	let isError = false;
+	let loading = false;
+
+	async function handleSignIn() {
+		if (!initials.trim()) {
+			message = "Please enter your initials.";
+			isError = true;
+			return;
+		}
+
+		loading = true;
+		isError = false;
+		message = "";
+
+		try {
+			const res = await fetch("/api/analyst/login", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({ initials, role })
+			});
+
+			const data = await res.json();
+
+			if (!res.ok) {
+				message = data.detail || "Login failed.";
+				isError = true;
+			} else {
+				message = `Signed in as ${data.initials} (${data.role})`;
+				isError = false;
+
+				// Store token and user info in localStorage
+				localStorage.setItem("token", data.access_token);
+				localStorage.setItem("initials", data.initials);
+				localStorage.setItem("role", data.role);
+
+				window.location.href = "/dashboard";
+			}
+		} catch (err) {
+			console.error(err);
+			message = "Unexpected error. Please try again.";
+			isError = true;
+		}
+
+		loading = false;
+
+		setTimeout(() => {
+			message = "";
+		}, 3000);
+	}
 </script>
 
 <!-- Sign In container -->
 <div class="container">
 	<h1>Sign In</h1>
 
-	<!-- User enters Initials and can hit enter or button to sign in -->
+	{#if message}
+		<div class="toast {isError ? 'error' : 'success'}">{message}</div>
+	{/if}
+
 	<input
 		bind:value={initials}
 		class="input"
 		placeholder="Enter your initials"
+		on:keydown={(e) => e.key === 'Enter' && handleSignIn()}
 		required
 	/>
 
-	<!-- User selects role Lead or Analyst -->
 	<select bind:value={role} class="dropdown">
 		<option value="Analyst">Analyst</option>
 		<option value="Lead">Lead</option>
 	</select>
 
-	<!-- Sign In button -->
-	<button class="create-btn">
-		Sign In
-	</button>
+	{#if loading}
+		<button class="create-btn" disabled>Signing In...</button>
+	{:else}
+		<button class="create-btn" on:click={handleSignIn}>Sign In</button>
+	{/if}
 
-	<!-- Link to go back to landing page (HOME) -->
 	<a class="back-link" href="/">← Back to Home</a>
 </div>
-
-<!-- CSS Style for Sigin page -->
+<!-- CSS Style for containers page -->
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@700&display=swap');
 
@@ -120,5 +174,41 @@
 	.back-link:hover {
 		color: #000;
 		text-decoration: underline;
+	}
+
+	.toast {
+		margin-top: 0.5rem;
+		text-align: center;
+		font-size: 0.95rem;
+		font-weight: 600;
+		padding: 0.75rem 1rem;
+		border-radius: 8px;
+		width: 100%;
+		max-width: 280px;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		animation: fadeIn 0.3s ease-out;
+	}
+
+	.success {
+		background-color: #d4edda;
+		color: #155724;
+		border: 1px solid #c3e6cb;
+	}
+
+	.error {
+		background-color: #f8d7da;
+		color: #721c24;
+		border: 1px solid #f5c6cb;
+	}
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 </style>

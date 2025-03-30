@@ -1,12 +1,10 @@
 from databasemanager.databasemanager import db
-
 class Analyst:
 
-    def __init__(self, id=None, initials=None, role=None, isLead=None):
+    def __init__(self, id=None, initials=None, role=None):
         self.__analystID = id
         self.__initials = initials
         self.__role = role
-        self.__islead = isLead
 
     def getAnalystID(self):
         return self.__analystID
@@ -24,36 +22,33 @@ class Analyst:
         self.__role = role
 
     def getIslead(self):
-        return self.__islead
-    def setIslead(self, islead):
-        self.__islead = islead
+        return self.getRole() == "Lead"
+
 
     def checkAnalyst(self, initals):
         if db.countAnalyst() == 0:
             return False
         return db.checkAnalyst(initals)
 
-    def createAnalyst(self, initials, role, islead):
+    def createAnalyst(self, initials, role):
 
-        createdAnalyst = db.createAnalyst(initials, role, islead)
+        createdAnalyst = db.createAnalyst(initials, role)
         if createdAnalyst:
             self.setInitials(createdAnalyst.get("initials"))
             self.setRole(createdAnalyst.get("role"))
-            self.setIslead(createdAnalyst.get("islead"))
             self.setAnalystID(createdAnalyst.get("id"))
             return True
         else:
-            False
+            return False
 
     
     def loadAnalyst(self,initials):
         return db.loadAnalyst(initials)
        
-    def saveAnalyst(self, initials, role, islead):
+    def saveAnalyst(self, initials, role):
 
-        if db.saveAnalyst(initials, role, islead):
+        if db.saveAnalyst(initials, role):
             self.setRole(role)
-            self.setIslead(islead)
             return True
         else:
-            False
+            return False

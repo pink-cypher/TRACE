@@ -1,5 +1,27 @@
-from Analyst.analyst import Analyst
-from projectManager.projectManager import ProjectManager
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from api.analyst_routes import router as analyst_router
+from api.test_routes import router as test_router
+
+
+app = FastAPI()
+
+# Allow frontend to access backend during development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+) 
+app.include_router(test_router, prefix="/api/test")
+# Prefix all analyst routes with /api/analyst
+app.include_router(analyst_router, prefix="/api/analyst")
+
+
+
+# from Analyst.analyst import Analyst
+# from projectManager.projectManager import ProjectManager
 
 # from fastapi import FastAPI, Request
 # from fastapi.middleware.cors import CORSMiddleware
@@ -14,21 +36,48 @@ from projectManager.projectManager import ProjectManager
 #     allow_methods=["*"],
 #     allow_headers=["*"],
 # )
-
+# print("Hellow World!")
 # @app.post("/api/initials")
 # async def receive_initials(request: Request):
 #     data = await request.json()
 #     return {"capitalized_initials": True}
 
 
-analyst = Analyst()
-initals = 'RP'
-analystResult = analyst.checkAnalyst(initals)
+# analyst = Analyst()
+# initals = 'RP'
+# analystResult = analyst.checkAnalyst(initals)
 
-loaded = analyst.loadAnalyst(initals)
+# loaded = analyst.loadAnalyst(initals)
 
-analyst = Analyst(**loaded)
-print(vars(analyst))
+# analyst = Analyst(**loaded)
+# print(vars(analyst))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -42,16 +91,16 @@ print(vars(analyst))
 
 # print(vars(analyst))
 
-pm = ProjectManager(analyst)
-id = "4:38bff53d-c4fa-4770-be39-af8a418ac8e6:4"
+# pm = ProjectManager(analyst)
+# id = "4:38bff53d-c4fa-4770-be39-af8a418ac8e6:4"
 
-pro = pm.loadProject(id)
-print(vars(pro))
+# pro = pm.loadProject(id)
+# print(vars(pro))
 
 
-pm.deleteOrArchiveProject(id, False)
-pro = pm.loadProject(id)
-print(vars(pro))
+# pm.deleteOrArchiveProject(id, False)
+# pro = pm.loadProject(id)
+# print(vars(pro))
 
 
 

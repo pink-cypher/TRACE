@@ -1,0 +1,124 @@
+<script>
+	export let open = false;
+	export let onClose = () => {};
+
+	let exportFormat = localStorage.getItem("exportFormat") || "CSV";
+
+	function saveSettings() {
+		localStorage.setItem("exportFormat", exportFormat);
+		onClose();
+	}
+
+	function handleKeydown(e) {
+		if (e.key === "Escape") {
+			onClose();
+		}
+	}
+</script>
+
+{#if open}
+	<div
+		class="overlay"
+		role="dialog"
+		aria-modal="true"
+		tabindex="-1"
+		on:click={onClose}
+		on:keydown={handleKeydown}
+	>
+		<div class="popup" on:click|stopPropagation>
+			<button class="close-btn" on:click={onClose} aria-label="Close settings popup">×</button>
+			<h2>Settings</h2>
+
+			<div class="setting-group">
+				<label for="exportFormat">Export Format:</label>
+				<select id="exportFormat" bind:value={exportFormat}>
+					<option value="CSV">CSV</option>
+					<option value="XML">XML</option>
+				</select>
+			</div>
+
+			<button class="save-btn" on:click={saveSettings}>Save</button>
+		</div>
+	</div>
+{/if}
+
+<style>
+	.overlay {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background: rgba(0, 0, 0, 0.3);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		z-index: 999;
+	}
+
+	.popup {
+		background: #fff;
+		border-radius: 12px;
+		padding: 2rem;
+		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+		width: 90%;
+		max-width: 360px;
+		position: relative;
+		animation: fadeIn 0.3s ease-out;
+	}
+
+	@keyframes fadeIn {
+		from {
+			transform: scale(0.95);
+			opacity: 0;
+		}
+		to {
+			transform: scale(1);
+			opacity: 1;
+		}
+	}
+
+	h2 {
+		margin-top: 0;
+		font-size: 1.5rem;
+		text-align: center;
+	}
+
+	.setting-group {
+		margin: 1rem 0;
+		font-size: 0.95rem;
+	}
+
+	select {
+		width: 100%;
+		padding: 0.5rem;
+		border-radius: 8px;
+		border: 1px solid #ccc;
+	}
+
+	.save-btn {
+		width: 100%;
+		padding: 0.75rem;
+		background: #000;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		transition: background 0.3s ease;
+	}
+
+	.save-btn:hover {
+		background: #222;
+	}
+
+	.close-btn {
+		position: absolute;
+		top: 0.5rem;
+		right: 0.75rem;
+		background: none;
+		border: none;
+		font-size: 1.5rem;
+		cursor: pointer;
+		color: #555;
+	}
+</style>

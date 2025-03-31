@@ -1,8 +1,10 @@
 <script>
 	import { onMount } from "svelte";
+  import SettingsPopup from '$lib/settings/SettingsPopup.svelte';
 	let initials = "";
 	let role = "";
 	let active = "projects";
+  let showSettings = false;
 
 	onMount(() => {
 		initials = localStorage.getItem("initials");
@@ -16,7 +18,7 @@
 	function logout() {
 		localStorage.clear();
 		window.location.href = "/login";
-	}
+	} 
 
 	let darkMode = localStorage.getItem("darkMode") === "true";
 	function toggleDarkMode() {
@@ -62,11 +64,11 @@
 					</button>
 				</div>
 			{/if}
-
+      <!--Setting  Container  -->
 			<div class="settings">
 				<button
 					class:active-icon={active === "settings"}
-					on:click={() => (active = "settings")}
+					on:click={() => showSettings = true}
 					title="Settings"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -77,7 +79,7 @@
 			</div>
 		</div>
 
-		<!-- Logout at the bottom -->
+		<!-- Logout Container-->
 		<div class="logout-wrapper">
 			<button class="logout" on:click={logout}>Log Out</button>
 		</div>
@@ -87,6 +89,7 @@
 	<main class="main">
 		<header class="header"></header>
 	</main>
+  <SettingsPopup open={showSettings} onClose={() => showSettings = false} />
 </div>
 
 <style>

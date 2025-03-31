@@ -6,7 +6,7 @@
 	let message = "";
 	let isError = false;
 	let loading = false;
-  
+	// Testing
 	async function handleSignIn() {
 	  if (!initials.trim()) {
 		message = "Please enter your initials.";

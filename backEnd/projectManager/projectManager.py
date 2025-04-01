@@ -17,12 +17,6 @@ class ProjectManager:
     def show_existing_projects(self):
         return db.getAllProjects()
 
-
-
-
-
-
-
     def saveProject(self, project):
         updates = {
             "name": project.getName(),

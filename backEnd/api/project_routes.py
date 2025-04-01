@@ -57,5 +57,11 @@ async def load_project(request: Request):
 # Get all projects
 @router.post("/")
 async def getAllProjects(request: Request):
+    pm = ProjectManager()
 
-    pass
+    projects = pm.getAllProjects()
+
+    # Return list of project dictionaries
+    return {
+        "projects": projects
+    }

@@ -23,3 +23,6 @@ async def create_project(request: Request):
 
     success = manager.createProject(name, description,initials, ips, ports)
     return {"success": success}
+
+@router.get("/list")
+ 

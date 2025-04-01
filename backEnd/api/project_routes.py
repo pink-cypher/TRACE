@@ -31,6 +31,24 @@ async def toggleProjectStatus(request: Request):
     success = pm.toggleStatus(id, status)
     return {"success": success}
 
+@router.post("/")
+async def exportProject(request: Request):
+    data = await request.json()
+    id = data.get('id')
+    format = data.get('format')
+
+    if not id or not format:
+        raise HTTPException(status_code=400, detail="Missing required fields")
+    
+    pm = ProjectManager()
+    
+    success = pm.exportProject(id, format)
+    return {"success": success}
+
+@router.post("/")
+async def saveProject(request: Request):
+    pass
+
 @router.post("/create")
 async def create_project(request: Request):
     data = await request.json()

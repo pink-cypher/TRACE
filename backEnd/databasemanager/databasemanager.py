@@ -116,7 +116,6 @@ class DatabaseManager:
         """
         result = self.runCypher(cypher, {}, write=False)
         return [record['project'] for record in result] if result else []
-
     def saveProject(self, updates, id):
         set_clause = ", ".join([f"project.{key} = ${key}" for key in updates.keys()])
         updates["id"] = id

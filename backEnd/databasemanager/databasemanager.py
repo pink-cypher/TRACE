@@ -127,22 +127,29 @@ class DatabaseManager:
                 """
         return True if self.runCypher(cypher, updates, write=True) else False
     
-    # def deleteProject(self, projectID):
-    #     cypher = """
-    #             MATCH (p:Project {ID: $ID})
+    def toggleLock(self,id, lockStatus):
 
-    #             OPTIONAL MATCH (p)-[r]-(n)
-    #             WHERE NOT n:Analyst
-    #             DETACH DELETE r, n
-    #             WITH p
-    #             DETACH DELETE p
-    #             RETURN true AS deleted
-    #             """
-    #     result = self.runCypher(cypher, {'ID':projectID}, write=True)
-    #     if result and result[0]['deleted']:
-    #         return True
-    #     else:
-    #         return False
+        cypher ="""
+                MATCH (project:Project) 
+                WHERE elementId(project) = $id
+                SET project.lockStatus = $lockStatus
+                RETURN project
+                """
+        param = {"lockStatus": lockStatus,
+                 "id":id}
+        return True if self.runCypher(cypher, param,write=True) else False
+
+    def toggleStatus(self, id, status):
+        cypher ="""
+                        MATCH (project:Project) 
+                        WHERE elementId(project) = $id
+                        SET project.status = $status
+                        RETURN project
+                        """
+        param = {"status": status,
+                 "id":id}
+        return True if self.runCypher(cypher, param,write=True) else False
+
     
     def deleteProject(self, projectID):
         cypher = """

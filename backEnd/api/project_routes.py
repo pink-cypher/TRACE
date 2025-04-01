@@ -5,6 +5,32 @@ from Analyst.analyst import Analyst
 
 router = APIRouter()
 
+@router.post("/")
+async def toggleLock(request: Request):
+    data = await request.json()
+    id = data.get('id')
+    lock = data.get('lock')
+    
+    if not id or not lock:
+        raise HTTPException(status_code=400, detail="Missing required fields")
+
+    pm = ProjectManager()
+    success = pm.toggleLock(id,lockState=lock)
+    return {"success": success}
+
+@router.post("/")
+async def toggleProjectStatus(request: Request):
+    data = await request.json()
+    id = data.get("id")
+    status = data.get('status')
+
+    if not id or not status:
+        raise HTTPException(status_code=400, detail="Missing required fields")
+    pm = ProjectManager()
+    
+    success = pm.toggleStatus(id, status)
+    return {"success": success}
+
 @router.post("/create")
 async def create_project(request: Request):
     data = await request.json()
@@ -19,12 +45,11 @@ async def create_project(request: Request):
 
     analyst = Analyst()
     analyst.loadAnalyst(initials)
-    manager = ProjectManager(analyst)
+    manager = ProjectManager()
 
     success = manager.createProject(name, description,initials, ips, ports)
     return {"success": success}
  
-
 # needs to Pass ProjectID from front end
 @router.post("/load")
 async def load_project(request: Request):

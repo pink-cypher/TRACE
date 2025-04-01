@@ -1,14 +1,25 @@
-<script>
+<script lang="ts">
 	import { goto } from '$app/navigation';
 	import { onMount } from "svelte";
 	import SettingsPopup from '$lib/settings/SettingsPopup.svelte';
 	import DeleteProjectPopup from "$lib/delete/DeleteProjectPopup.svelte";
 
+	type Project = {
+      id: string;
+      title: string;
+      description: string;
+      owner: string;
+      status: "Active" | "Archived";
+      startDate: string;
+      locked: boolean;
+    };
+	
 	let showDeletePopup = false;
 	
-	let projects = [];
-  	let loading = true;
-  	let error = "";
+	let projects: Project[] = [];
+    let search = "";
+    let loading = true;
+    let error = "";
 
 	let initials = "";
 	let role = "";
@@ -28,6 +39,7 @@
 	});
 
 	onMount(async () => {
+	loading = true;
     try {
       const response = await fetch('/api/projects/list', {
         method: 'POST',
@@ -41,13 +53,23 @@
         throw new Error('Failed to fetch projects');
       }
       const data = await response.json();
-      projects = data.projects;
-    } catch (err) {
-      error = err.message;
-    } finally {
-      loading = false;
-    }
-  	});
+  
+        projects = data.projects.map((item: any) => ({
+          id: item.id,
+          title: item.name,
+          description: item.description,
+          owner: item.owner,
+          status: item.status,
+          startDate: item.timestamp,
+          locked: item.lockStatus
+        }));
+      } catch (err) {
+        error = "Failed to load projects.";
+        console.error(err);
+      } finally {
+        loading = false;
+      }
+    });
 
 
 	function logout() {
@@ -66,6 +88,23 @@
   	function closeDeletePopup() {
     	showDeletePopup = false;
   	}
+
+	$: filteredProjects = projects.filter((p) =>
+      p.title.toLowerCase().includes(search.toLowerCase())
+    );
+  
+    function toggleLock(project: Project) {
+      project.locked = !project.locked;
+    }
+  
+    function copyId(id: string) {
+      navigator.clipboard.writeText(id);
+      alert(`Copied project ID: ${id}`);
+    }
+  
+    function openProject(title: string) {
+      alert(`Opening project: ${title}`);
+    }
 
 </script>
 
@@ -98,13 +137,14 @@
 						on:click={() => activateTab("delete")}
 						on:click={openDeletePopup}
 						title="Delete Project"
-					
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
 							<path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
 						</svg>
 						<span class="icon-label">Delete Project</span>
 					</button>
+
+				
 				</div>
 			{/if}
  
@@ -138,17 +178,71 @@
 			<h1>Projects</h1>
 		</header>
 		<p>This is the project dashboard where you can manage all your projects.</p>
+		<div class="search-bar">
+			<input
+				type="text"
+				placeholder="Search projects..."
+				bind:value={search}
+				class="input-field"
+			/>
+		</div>
 		{#if showDeletePopup}
   			<DeleteProjectPopup on:close={closeDeletePopup} />
 		{/if}
-		<ul>
-			{#each projects as project}
-			  <li>
-				<strong>{project.name}</strong> – Owned by {project.owner}
-				<!-- You can display additional project details here -->
-			  </li>
-			{/each}
-		</ul>
+		{#if loading}
+			<p class="text-center text-gray-500">Loading projects...</p>
+	  	{:else if error}
+			<p class="text-center text-red-500">{error}</p>
+	  	{:else if filteredProjects.length === 0}
+			<p class="text-center text-gray-500">No projects found.</p>
+	  	{:else}
+		  <div class="project-scroll-wrapper">
+			<div class="project-list">
+			  {#each filteredProjects as project}
+				<div class="project-card">
+				  <div class="project-header">
+					<h2 class="project-title">{project.title}</h2>
+					<span
+					  class={`status-pill ${
+						project.status === "Active"
+						  ? "status-active"
+						  : "status-archived"
+					  }`}
+					>
+					  {project.status}
+					</span>
+				  </div>
+	  
+				  <p class="project-description">{project.description}</p>
+	  
+				  <div class="project-details">
+					<div><strong>Owner:</strong> {project.owner}</div>
+					<div>
+					  <strong>Start Date:</strong>
+					  {new Date(project.startDate).toLocaleDateString()}
+					</div>
+					<div>
+					  <strong>Lock:</strong>
+					  <button
+						class={`lock-button ${project.locked ? "locked" : "unlocked"}`}
+						on:click={() => toggleLock(project)}
+					  >
+						{project.locked ? "Locked" : "Unlocked"}
+					  </button>
+					</div>
+				  </div>
+	  
+				  <div class="project-actions">
+					<button on:click={() => copyId(project.id)}>Copy ID</button>
+					<button on:click={() => openProject(project.title)}>Open</button>
+					<button on:click={() => alert(`Exporting project: ${project.title}`)}>Export</button>
+					<!-- connect export logic -->
+				  </div>
+				</div>
+			  {/each}
+			</div>
+		  </div>
+		{/if}
 	</main>
 
 	<SettingsPopup open={showSettings} onClose={() => showSettings = false} />
@@ -287,6 +381,163 @@
 		justify-content: space-between;
 		margin-bottom: 2rem;
 	}
+
+	.search-bar {
+    margin-bottom: 1.5rem;
+  	}
+
+	.search-input {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.6rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+    }
+
+	.search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
+
+  .project-scroll-wrapper {
+    max-height: 80vh;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .project-scroll-wrapper::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .project-scroll-wrapper::-webkit-scrollbar-thumb {
+    background-color: rgba(100, 116, 139, 0.4);
+    border-radius: 4px;
+  }
+
+  .project-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(100, 116, 139, 0.6);
+  }
+
+  .project-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .project-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1.25rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .project-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .status-pill {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    border-radius: 9999px;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+
+  .status-active {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+
+  .status-archived {
+    background-color: #f3f4f6;
+    color: #6b7280;
+  }
+
+  .project-description {
+    color: #4b5563;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .project-details {
+    font-size: 0.8125rem;
+    color: #374151;
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .lock-button {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .locked {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+
+  .locked:hover {
+    background-color: #fecaca;
+  }
+
+  .unlocked {
+    background-color: #dbeafe;
+    color: #1e3a8a;
+  }
+
+  .unlocked:hover {
+    background-color: #bfdbfe;
+  }
+
+  .project-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    font-size: 0.8125rem;
+    margin-top: 0.75rem;
+  }
+
+  .project-actions button {
+    color: #2563eb;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .project-actions button:hover {
+    text-decoration: underline;
+    color: #1d4ed8;
+  }
+
 </style>
 
 <!-- Check something -->

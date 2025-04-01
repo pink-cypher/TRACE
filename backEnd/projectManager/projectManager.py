@@ -12,7 +12,7 @@ class ProjectManager:
         project =  db.retrieveProject(projectID)
 
         return Project(**project) if project else None   
-    def show_existing_projects(self):
+    def showExisting(self):
         return db.getAllProjects()
     # Used in full on edit project and clicks save
     def updateProject(self, project):

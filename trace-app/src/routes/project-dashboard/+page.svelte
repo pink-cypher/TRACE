@@ -107,9 +107,9 @@
 					</button>
 				</div>
 			{/if}
-
+ 
 			<div class="settings">
-				<button
+				<button 
 					class:active-icon={settingTab}
 					on:click={() => {
 						activateTab("settings");

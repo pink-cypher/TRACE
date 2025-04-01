@@ -40,7 +40,7 @@ app.include_router(analyst_router, prefix="/api/analyst")
 #     "3306"  
 # ]
 
-# p.createProject("Test3","testing project 3  ","RP", ips, ports)
+# p.createProject("Test demo","testing project 3  ","SL", ips, ports)
 # id = "4:9b85307e-5220-4f24-9712-4a463db95510:0"
 
 # project = p.loadProject(id)

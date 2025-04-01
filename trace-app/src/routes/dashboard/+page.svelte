@@ -1,10 +1,15 @@
 <script>
 	import { onMount } from "svelte";
-  import SettingsPopup from '$lib/settings/SettingsPopup.svelte';
+	import SettingsPopup from '$lib/settings/SettingsPopup.svelte';
+
+
 	let initials = "";
 	let role = "";
-	let active = "projects";
-  let showSettings = false;
+	let showSettings = false;
+
+	let projectTab = true;
+	let deleteTab = false;
+	let settingTab = false;
 
 	onMount(() => {
 		initials = localStorage.getItem("initials");
@@ -18,13 +23,12 @@
 	function logout() {
 		localStorage.clear();
 		window.location.href = "/login";
-	} 
+	}
 
-	let darkMode = localStorage.getItem("darkMode") === "true";
-	function toggleDarkMode() {
-		darkMode = !darkMode;
-		localStorage.setItem("darkMode", darkMode);
-		document.body.classList.toggle("dark-mode", darkMode);
+	function activateTab(tab) {
+		projectTab = tab === 'projects';
+		deleteTab = tab === 'delete';
+		settingTab = tab === 'settings';
 	}
 </script>
 
@@ -39,8 +43,8 @@
 		<div class="sidebar-icons">
 			<div class="sidebar-section">
 				<button
-					class:active-icon={active === "projects"}
-					on:click={() => (active = "projects")}
+					class:active-icon={projectTab}
+					on:click={() => activateTab("projects")}
 					title="Projects"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -53,8 +57,8 @@
 			{#if role === "Lead"}
 				<div class="sidebar-section">
 					<button
-						class:active-icon={active === "delete"}
-						on:click={() => (active = "delete")}
+						class:active-icon={deleteTab}
+						on:click={() => activateTab("delete")}
 						title="Delete Project"
 					>
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -64,11 +68,15 @@
 					</button>
 				</div>
 			{/if}
-      <!--Setting  Container  -->
+
 			<div class="settings">
 				<button
-					class:active-icon={active === "settings"}
-					on:click={() => showSettings = true}
+					class:active-icon={settingTab}
+					on:click={() => {
+						activateTab("settings");
+						showSettings = true;
+
+					}}
 					title="Settings"
 				>
 					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -79,7 +87,7 @@
 			</div>
 		</div>
 
-		<!-- Logout Container-->
+		<!-- Logout Container -->
 		<div class="logout-wrapper">
 			<button class="logout" on:click={logout}>Log Out</button>
 		</div>
@@ -88,8 +96,14 @@
 	<!-- Main Content -->
 	<main class="main">
 		<header class="header"></header>
+		{#if projectTab}
+			Project stuff
+		{:else if deleteTab}
+			<p>Delete Project Logic</p>
+		{/if}
 	</main>
-  <SettingsPopup open={showSettings} onClose={() => showSettings = false} />
+
+	<SettingsPopup open={showSettings} onClose={() => showSettings = false} />
 </div>
 
 <style>

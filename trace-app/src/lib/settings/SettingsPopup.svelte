@@ -22,10 +22,17 @@
 		role="dialog"
 		aria-modal="true"
 		tabindex="-1"
-		on:click={onClose}
 		on:keydown={handleKeydown}
 	>
-		<div class="popup" on:click|stopPropagation>
+		<!-- Transparent button over background to allow click-to-close (with keyboard support) -->
+		<button
+			class="overlay-dismiss"
+			aria-label="Close settings"
+			on:click={onClose}
+			on:keydown={handleKeydown}
+		></button>
+
+		<div class="popup" role="document" on:click|stopPropagation>
 			<button class="close-btn" on:click={onClose} aria-label="Close settings popup">×</button>
 			<h2>Settings</h2>
 
@@ -56,15 +63,29 @@
 		z-index: 999;
 	}
 
+	/* Invisible button to handle click-outside + keyboard accessibility */
+	.overlay-dismiss {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		border: none;
+		background: transparent;
+		cursor: default;
+		top: 0;
+		left: 0;
+	}
+
 	.popup {
 		background: #fff;
 		border-radius: 12px;
 		padding: 2rem;
 		box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-		width: 90%;
-		max-width: 360px;
+		width: clamp(250px, 80vw, 360px); /* Responsive shrink */
+		max-height: 90vh;
+		overflow-y: auto;
 		position: relative;
 		animation: fadeIn 0.3s ease-out;
+		z-index: 1000;
 	}
 
 	@keyframes fadeIn {

@@ -100,6 +100,23 @@ class DatabaseManager:
             return None
         project = self.runCypher(cypher, param)
         return project[0].get('project') if project else None
+    def getAllProjects(self):
+        cypher = """
+            MATCH (p:Project)
+            WHERE p.status = 'Active'
+            RETURN {
+                id: elementId(p),
+                name: p.name,
+                owner: p.owner,
+                timestamp: toString(p.timestamp),
+                status: p.status,
+                lockStatus: p.lockStatus,
+                description: p.description
+            } AS project
+        """
+        result = self.runCypher(cypher, {}, write=False)
+        return [record['project'] for record in result] if result else []
+
     def saveProject(self, updates, id):
         set_clause = ", ".join([f"project.{key} = ${key}" for key in updates.keys()])
         updates["id"] = id

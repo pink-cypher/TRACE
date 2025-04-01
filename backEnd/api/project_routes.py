@@ -23,3 +23,9 @@ async def create_project(request: Request):
 
     success = manager.createProject(name, description,initials, ips, ports)
     return {"success": success}
+
+
+
+@router.post("/")
+async def load_project(request: Request):
+    pass

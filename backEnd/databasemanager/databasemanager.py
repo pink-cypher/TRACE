@@ -128,9 +128,27 @@ class DatabaseManager:
                 """
         return True if self.runCypher(cypher, updates, write=True) else False
     
+    # def deleteProject(self, projectID):
+    #     cypher = """
+    #             MATCH (p:Project {ID: $ID})
+
+    #             OPTIONAL MATCH (p)-[r]-(n)
+    #             WHERE NOT n:Analyst
+    #             DETACH DELETE r, n
+    #             WITH p
+    #             DETACH DELETE p
+    #             RETURN true AS deleted
+    #             """
+    #     result = self.runCypher(cypher, {'ID':projectID}, write=True)
+    #     if result and result[0]['deleted']:
+    #         return True
+    #     else:
+    #         return False
+    
     def deleteProject(self, projectID):
         cypher = """
-                MATCH (p:Project {ID: $ID})
+                MATCH (p:Project)
+                WHERE elementId(p) = $projectID
                 OPTIONAL MATCH (p)-[r]-(n)
                 WHERE NOT n:Analyst
                 DETACH DELETE r, n
@@ -138,7 +156,7 @@ class DatabaseManager:
                 DETACH DELETE p
                 RETURN true AS deleted
                 """
-        result = self.runCypher(cypher, {'ID':projectID}, write=True)
+        result = self.runCypher(cypher, {'projectID': projectID}, write=True)
         if result and result[0]['deleted']:
             return True
         else:

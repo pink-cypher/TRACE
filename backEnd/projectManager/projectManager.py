@@ -14,7 +14,7 @@ class ProjectManager:
 
         return Project(**project) if project else None
     
-    def show_existing_projects(self):
+    def showExisting(self):
         return db.getAllProjects()
 
     def saveProject(self, project):

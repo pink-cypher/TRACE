@@ -23,14 +23,10 @@ async def create_project(request: Request):
 
     success = manager.createProject(name, description,initials, ips, ports)
     return {"success": success}
-
-<<<<<<< HEAD
-@router.get("/list")
  
-=======
 
 # needs to Pass ProjectID from front end
-@router.post("/")
+@router.post("/load")
 async def load_project(request: Request):
     data = await request.json()
     project_id = data.get("projectID")
@@ -59,14 +55,35 @@ async def load_project(request: Request):
     }
 
 # Get all projects
-@router.post("/")
+@router.post("/list")
 async def getAllProjects(request: Request):
     pm = ProjectManager()
 
-    projects = pm.getAllProjects()
+    projects = pm.showExisting()
 
     # Return list of project dictionaries
     return {
         "projects": projects
     }
->>>>>>> a2098cd0aa9a0af68f74ef3692aa4d97ffef8a32
+
+@router.post("/delete")
+async def deleteProject(request: Request):
+    pm = ProjectManager()
+    data = await request.json()
+    project_id = data.get("projectID")
+
+    print(project_id)
+    if not project_id:
+        raise HTTPException(status_code=400, detail="Project ID is required.")
+    print(project_id)
+    try:
+        success = pm.deleteProject(project_id)
+        if success:
+            print("Project is deleted")
+            return {"message": "Project deleted successfully."}
+        else:
+            print("failed to deleteee")
+            raise HTTPException(status_code=404, detail="Project not found or deletion failed.")
+    except Exception as e :
+        print(f"Error occured delteing project{str(e)}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

@@ -6,12 +6,17 @@ class ProjectManager:
     def __init__(self,):
         pass
         
-
-    # def createProject(self, projectName, description):
-    #     return db.storeProject(projectName,description, self.analyst.getInitials()) 
     def createProject(self, projectName, description, initials, ips, ports):
         return db.storeProject(projectName,description, initials, ips, ports) 
          
+    def loadProject(self, projectID):
+        project =  db.retrieveProject(projectID)
+
+        return Project(**project) if project else None
+    
+    def show_existing_projects(self):
+        return db.getAllProjects()
+
     def saveProject(self, project):
         updates = {
             "name": project.getName(),
@@ -23,11 +28,6 @@ class ProjectManager:
         }
 
         return db.saveProject(updates,project.getID()) if True else False
-    
-    def loadProject(self, projectID):
-        project =  db.retrieveProject(projectID)
-
-        return Project(**project) if project else None
 
     def deleteProject(self, projectID):
 

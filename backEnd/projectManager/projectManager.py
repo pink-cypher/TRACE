@@ -7,29 +7,37 @@ class ProjectManager:
         pass
         
     def createProject(self, projectName, description, initials, ips, ports):
-        return db.storeProject(projectName,description, initials, ips, ports) 
-         
+        return db.storeProject(projectName,description, initials, ips, ports)        
     def loadProject(self, projectID):
         project =  db.retrieveProject(projectID)
 
-        return Project(**project) if project else None
-    
-    def showExisting(self):
+        return Project(**project) if project else None   
+    def show_existing_projects(self):
         return db.getAllProjects()
-
-    def saveProject(self, project):
+    # Used in full on edit project and clicks save
+    def updateProject(self, project):
         updates = {
             "name": project.getName(),
             "owner": project.getOwner(),
             "timestamp": project.getTimestamp(),
             "status": project.getStatus(),
             "lockStatus": project.getLockStatus(),
-            "description": project.getDescription()
+            "description": project.getDescription(),
+            "ips": project.getIps(),
+            "ports": project.getPorts()
         }
 
-        return db.saveProject(updates,project.getID()) if True else False
-
+        # Filter out None values
+        updates = {k: v for k, v in updates.items() if v is not None}
+        return db.saveProject(updates,project.getID())
+    # Lock status update lock or unlock
+    def toggleLock(self, projectID, lockState):
+        return db.toggleLock(projectID, lockState)
+    
+    def exportProject(self, projectID, format="CSV"):
+        pass
+    
+    # Delete project data
     def deleteProject(self, projectID):
-
-        success = db.deleteProject(projectID)
-        return True if success else False
+        return db.deleteProject(projectID)
+        

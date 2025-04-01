@@ -3,19 +3,14 @@ from projectManager.project import Project
 
 class ProjectManager:
 
-    def __init__(self, analyst):
-        self.analyst = analyst
-
-    def isLead(self):
-        return self.analyst.getIslead()
-    def isOwner(self):
+    def __init__(self,):
         pass
+        
 
-    def isMember(self):
-        pass
-
-    def createProject(self, projectName, description):
-        return db.storeProject(projectName,description, self.analyst.getInitials()) 
+    # def createProject(self, projectName, description):
+    #     return db.storeProject(projectName,description, self.analyst.getInitials()) 
+    def createProject(self, projectName, description, initials, ips, ports):
+        return db.storeProject(projectName,description, initials, ips, ports) 
          
     def saveProject(self, project):
         updates = {

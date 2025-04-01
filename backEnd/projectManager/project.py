@@ -1,5 +1,5 @@
 class Project:
-    def __init__(self, id, name, owner, timestamp, status="Active", lockStatus=False, description=""):
+    def __init__(self, id, name, owner, timestamp,ips, ports, status="Active", lockStatus=False, description=""):
         self.__id = id
         self.__name = name
         self.__owner = owner
@@ -7,6 +7,8 @@ class Project:
         self.__status = status
         self.__lockStatus = lockStatus
         self.__description = description
+        self.__ips = ips
+        self.__ports = ports
 
     def getID(self):
             return self.__id
@@ -35,3 +37,14 @@ class Project:
         return self.__description
     def setDescription(self, newDescription):
         self.__description = newDescription
+
+    def getIps(self):
+        return self.__ips
+    def setIps(self, newIps):
+        self.__ips = newIps
+
+    def getPorts(self):
+        return self.__ports
+    def setPorts(self, newPorts):
+        self.__ports = newPorts
+    

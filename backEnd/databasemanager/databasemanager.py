@@ -66,7 +66,7 @@ class DatabaseManager:
             }
         return True if self.runCypher(cypher, param, write=True) else False
 
-    def storeProject(self, projectName, description, owner):
+    def storeProject(self, projectName, description, owner, ips, ports):
         cypher = """
             CREATE (project:Project {
                 name: $projectName,
@@ -74,7 +74,9 @@ class DatabaseManager:
                 timestamp: datetime(),
                 status: "Active",
                 lockStatus: False,
-                description: $description
+                description: $description,
+                ips: $ips,
+                ports: $ports
             })
             WITH project
             MATCH (analyst:Analyst {initials: $owner})
@@ -85,7 +87,9 @@ class DatabaseManager:
             "projectName": projectName,
             "owner": owner,
             "description": description,
-            "initials":owner
+            "initials":owner,
+            "ips": ips,      
+            "ports": ports
         }
         return True if self.runCypher(cypher, param, write=True) else False
     def retrieveProject(self, projectID):

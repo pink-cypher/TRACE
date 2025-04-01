@@ -17,6 +17,7 @@ app.add_middleware(
     allow_headers=["*"],
 ) 
 app.include_router(project_router, prefix="/api/projects")
+
 # Prefix all analyst routes with /api/analyst
 app.include_router(analyst_router, prefix="/api/analyst")
 

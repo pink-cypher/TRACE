@@ -150,6 +150,22 @@ class DatabaseManager:
                  "id":id}
         return True if self.runCypher(cypher, param,write=True) else False
 
+    def exportProjectToCSV(self, id):
+        cypher = """
+            MATCH (p:Project)
+            WHERE elementId(p) = $id
+            RETURN elementId(p) AS id, 
+                p.name AS name, 
+                p.owner AS owner, 
+                toString(p.timestamp) AS timestamp, 
+                p.status AS status, 
+                p.lockStatus AS lockStatus, 
+                p.description AS description, 
+                p.ips AS ips, 
+                p.ports AS ports
+        """
+        result = self.runCypher(cypher, {"id": id})
+        return result 
     
     def deleteProject(self, projectID):
         cypher = """

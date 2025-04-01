@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Request, HTTPException
+from fastapi.responses import StreamingResponse
+import io
 from projectManager.projectManager import ProjectManager
 from Analyst.analyst import Analyst
 # from ProjectManager.project import Project
@@ -31,8 +33,8 @@ async def toggleProjectStatus(request: Request):
     success = pm.toggleStatus(id, status)
     return {"success": success}
 
-@router.post("/")
-async def exportProject(request: Request):
+@router.post("/export")
+async def export_project(request: Request):
     data = await request.json()
     id = data.get('id')
     format = data.get('format')
@@ -41,9 +43,20 @@ async def exportProject(request: Request):
         raise HTTPException(status_code=400, detail="Missing required fields")
     
     pm = ProjectManager()
-    
-    success = pm.exportProject(id, format)
-    return {"success": success}
+
+    if format.upper() == "CSV":
+        csv_result = pm.exportProjectCSV(id)
+        if not csv_result:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        csv_data = csv_result["csv"]
+        return StreamingResponse(
+            io.StringIO(csv_data),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=project_{id}.csv"}
+        )
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported format")
 
 @router.post("/")
 async def saveProject(request: Request):

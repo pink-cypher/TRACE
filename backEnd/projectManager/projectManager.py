@@ -1,5 +1,6 @@
 from databasemanager.databasemanager import db
 from projectManager.project import Project
+import csv, io
 
 class ProjectManager:
 
@@ -36,8 +37,28 @@ class ProjectManager:
     def toggleStatus(self, id, status):
         return db.toggleStatus(id, status)
     
-    def exportProject(self, projectID, format="CSV"):
-        pass
+    def exportProjectCSV(self, project_id):
+        data = db.exportProjectToCSV(project_id)
+
+        if not data:
+            return None
+
+        # Convert Neo4j Record to a list of mutable dictionaries
+        data_dicts = [dict(record) for record in data]
+
+        # Flatten 'ips' and 'ports'
+        for row in data_dicts:
+            if isinstance(row.get("ips"), list):
+                row["ips"] = ", ".join(row["ips"])
+            if isinstance(row.get("ports"), list):
+                row["ports"] = ", ".join(row["ports"])
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=data_dicts[0].keys())
+        writer.writeheader()
+        writer.writerows(data_dicts)
+
+        return {"csv": output.getvalue()}
     
     # Delete project data
     def deleteProject(self, projectID):

@@ -3,7 +3,8 @@ from fastapi.responses import StreamingResponse
 import io
 from projectManager.projectManager import ProjectManager
 from Analyst.analyst import Analyst
-# from ProjectManager.project import Project
+import csv
+import xml.etree.ElementTree as ET
 
 router = APIRouter()
 
@@ -57,6 +58,33 @@ async def export_project(request: Request):
             media_type="text/csv",
             headers={"Content-Disposition": f"attachment; filename=project_{id}.csv"}
         )
+    elif format.upper() == "XML":
+        csv_result = pm.exportProjectCSV(id)
+        if not csv_result:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        csv_data = csv_result["csv"]
+
+        # Convert CSV string to XML in-memory
+        reader = csv.DictReader(io.StringIO(csv_data))
+        root = ET.Element("records")
+
+        for row in reader:
+            record = ET.SubElement(root, "record")
+            for key, value in row.items():
+                elem = ET.SubElement(record, key)
+                elem.text = value
+
+        xml_io = io.StringIO()
+        ET.ElementTree(root).write(xml_io, encoding='unicode', xml_declaration=True)
+        xml_io.seek(0)
+
+        return StreamingResponse(
+            xml_io,
+            media_type="application/xml",
+            headers={"Content-Disposition": f"attachment; filename=project_{id}.xml"}
+        )
+
     else:
         raise HTTPException(status_code=400, detail="Unsupported format")
 

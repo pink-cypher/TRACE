@@ -7,9 +7,10 @@ from Analyst.analyst import Analyst
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("/lock")
 async def toggleLock(request: Request):
     data = await request.json()
+    print(data)
     id = data.get('id')
     lock = data.get('lock')
     
@@ -17,7 +18,7 @@ async def toggleLock(request: Request):
         raise HTTPException(status_code=400, detail="Missing required fields")
 
     pm = ProjectManager()
-    success = pm.toggleLock(id,lockState=lock)
+    success = pm.toggleLock(projectID=id,lockState=lock)
     return {"success": success}
 
 @router.post("/")
@@ -65,11 +66,17 @@ async def saveProject(request: Request):
 @router.post("/create")
 async def create_project(request: Request):
     data = await request.json()
-    name = data.get("name")
+    #print(data)
+    name = data.get("projectName")
+    #print(name)
     description = data.get("description", "")
+    #print(description)
     ips = data.get("ips", [])
+    #print(ips)
     ports = data.get("ports", [])
-    initials = data.get("initials")  
+    #print(ports)
+    initials = data.get("owner")
+    #print(initials)  
 
     if not name or not initials:
         raise HTTPException(status_code=400, detail="Missing required fields")

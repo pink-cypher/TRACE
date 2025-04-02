@@ -8,6 +8,8 @@ class ProjectManager:
         pass
         
     def createProject(self, projectName, description, initials, ips, ports):
+        #for debugging purposes
+        #print(f"Creating project: {projectName} with initials: {initials}")
         return db.storeProject(projectName,description, initials, ips, ports)        
     def loadProject(self, projectID):
         project =  db.retrieveProject(projectID)
@@ -34,6 +36,7 @@ class ProjectManager:
     # Lock status update lock or unlock
     def toggleLock(self, projectID, lockState):
         return db.toggleLock(projectID, lockState)
+    
     def toggleStatus(self, id, status):
         return db.toggleStatus(id, status)
     

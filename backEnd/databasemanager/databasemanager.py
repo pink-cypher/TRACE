@@ -91,7 +91,15 @@ class DatabaseManager:
             "ips": ips,      
             "ports": ports
         }
-        return True if self.runCypher(cypher, param, write=True) else False
+        result = self.runCypher(cypher, param, write=True)
+        if result:
+            #print(f"Project created: {result[0].get('project')}")
+            return True
+        else:
+            #print(f"{param}")
+            return False
+       
+
     def retrieveProject(self, projectID):
         if projectID:
             cypher = "MATCH (project:Project) WHERE elementId(project)= $projectID RETURN project {.*, id: elementId(project)}"

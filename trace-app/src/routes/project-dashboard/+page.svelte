@@ -3,6 +3,7 @@
 	import { onMount } from "svelte";
 	import SettingsPopup from '$lib/settings/SettingsPopup.svelte';
 	import DeleteProjectPopup from "$lib/delete/DeleteProjectPopup.svelte";
+	import CreateProjectPopup from "$lib/create/CreateProjectPopup.svelte";
 
 	type Project = {
       id: string;
@@ -13,8 +14,11 @@
       startDate: string;
       locked: boolean;
     };
+
+	let content = "";
 	
 	let showDeletePopup = false;
+	let showCreatePopup = false;
 	
 	let projects: Project[] = [];
     let search = "";
@@ -28,6 +32,7 @@
 	let projectTab = true;
 	let deleteTab = false;
 	let settingTab = false;
+	let CreateTab = false;
 
 	onMount(() => {
 		initials = localStorage.getItem("initials");
@@ -71,6 +76,53 @@
       }
     });
 
+	async function exportToFile(project_id: string, project_title: string) {
+		try {
+			// Fetch data from backend (adjust endpoint as needed)
+			const response = await fetch("/api/projects/export", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+                // id and CSV are hardcode to test 
+				body: JSON.stringify({
+					id: project_id, 
+					format: "CSV"
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error("Export failed from backend");
+			}
+
+			// Get CSV content from backend response
+			const data = await response.text();
+			content = data;
+			// Show Save Dialog
+			// @ts-ignore: showSaveFilePicker is not recognized by TypeScript
+			const handle = await window.showSaveFilePicker({
+				suggestedName: project_title+"_project_data.csv",
+				types: [
+					{
+						description: "CSV File",
+						accept: {
+							"text/csv": [".csv"]
+						}
+					}
+				]
+			});
+		// Write content to chosen file
+		const writable = await handle.createWritable();
+			await writable.write(content);
+			await writable.close();
+
+			alert("File saved successfully!");
+		} catch (err) {
+			console.error("Export failed", err);
+			alert("Export failed. See console for details.");
+		}
+	}
+
 
 	function logout() {
 		localStorage.clear();
@@ -79,6 +131,7 @@
 
 	function activateTab(tab) {
 		projectTab = tab === 'projects';
+		CreateTab = tab === 'Create';
 		deleteTab = tab === 'delete';
 		settingTab = tab === 'settings';
 	}
@@ -88,14 +141,39 @@
   	function closeDeletePopup() {
     	showDeletePopup = false;
   	}
+	function openCreatePopup() {
+		showCreatePopup = true;
+	}
+	function closeCreatePopup() {
+		showCreatePopup = false;
+	}
+  
 
 	$: filteredProjects = projects.filter((p) =>
       p.title.toLowerCase().includes(search.toLowerCase())
     );
   
-    function toggleLock(project: Project) {
-      project.locked = !project.locked;
-    }
+    // function toggleLock(project: Project) {
+    //   project.locked = !project.locked;
+	//   projects = [...projects];
+    // }
+
+	async function toggleLock(project: Project){
+		const newState = !project.locked
+		const response = await fetch("/api/projects/lock",{
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				id: project.id,
+				lock: newState
+			})
+		})
+
+		project.locked = newState;
+	}
+
   
     function copyId(id: string) {
       navigator.clipboard.writeText(id);
@@ -144,6 +222,16 @@
 						<span class="icon-label">Delete Project</span>
 					</button>
 
+					<button
+						class:active-icon={CreateTab}
+						on:click={() => activateTab("Create")}
+						on:click={openCreatePopup}
+						title="Create Project"
+					>
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+							<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+						</svg>
+						<span class="icon-label">Create Project</span>
 				
 				</div>
 			{/if}
@@ -189,6 +277,9 @@
 		{#if showDeletePopup}
   			<DeleteProjectPopup on:close={closeDeletePopup} />
 		{/if}
+		{#if showCreatePopup}
+			<CreateProjectPopup on:close={closeCreatePopup} />
+		{/if}
 		{#if loading}
 			<p class="text-center text-gray-500">Loading projects...</p>
 	  	{:else if error}
@@ -225,6 +316,7 @@
 					  <strong>Lock:</strong>
 					  <button
 						class={`lock-button ${project.locked ? "locked" : "unlocked"}`}
+
 						on:click={() => toggleLock(project)}
 					  >
 						{project.locked ? "Locked" : "Unlocked"}
@@ -235,7 +327,7 @@
 				  <div class="project-actions">
 					<button on:click={() => copyId(project.id)}>Copy ID</button>
 					<button on:click={() => openProject(project.title)}>Open</button>
-					<button on:click={() => alert(`Exporting project: ${project.title}`)}>Export</button>
+					<button on:click={() => exportToFile(project.id,project.title)}>Export</button>
 					<!-- connect export logic -->
 				  </div>
 				</div>
@@ -267,6 +359,11 @@
 		border-bottom-right-radius: 10px;
 		color: #fff;
 		box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+		position: fixed;
+		top: 0;
+		left: 0;
+
+		height: 100vh;
 	}
 
 	.user-info {
@@ -373,6 +470,8 @@
 	.main {
 		flex: 1;
 		padding: 2rem;
+		margin-left: 80px; /* same as sidebar width */
+		
 	}
 
 	.header {

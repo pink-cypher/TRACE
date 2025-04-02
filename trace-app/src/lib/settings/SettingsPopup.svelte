@@ -3,9 +3,14 @@
 	export let onClose = () => {};
 
 	let exportFormat = localStorage.getItem("exportFormat") || "CSV";
+	let theme = localStorage.getItem("theme") || "light";
+
+
 
 	function saveSettings() {
 		localStorage.setItem("exportFormat", exportFormat);
+		localStorage.setItem("theme", theme);
+		document.body.setAttribute("data-theme", theme);
 		onClose();
 	}
 
@@ -32,6 +37,9 @@
 			on:keydown={handleKeydown}
 		></button>
 
+		<!-- Popup content -->
+		<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
 		<div class="popup" role="document" on:click|stopPropagation>
 			<button class="close-btn" on:click={onClose} aria-label="Close settings popup">×</button>
 			<h2>Settings</h2>
@@ -43,11 +51,20 @@
 					<option value="XML">XML</option>
 				</select>
 			</div>
+			<div class="setting-group">
+				<label for="theme">Theme:</label>
+				<select id="theme">
+					<option value="light">Light</option>
+					<option value="dark">Dark</option>
+				</select>
+			</div>
 
 			<button class="save-btn" on:click={saveSettings}>Save</button>
 		</div>
 	</div>
+
 {/if}
+
 
 <style>
 	.overlay {

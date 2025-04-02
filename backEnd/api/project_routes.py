@@ -60,9 +60,6 @@ async def export_project(request: Request):
     else:
         raise HTTPException(status_code=400, detail="Unsupported format")
 
-@router.post("/")
-async def saveProject(request: Request):
-    pass
 
 @router.post("/create")
 async def create_project(request: Request):
@@ -165,7 +162,7 @@ async def saveProject(request: Request):
         project = pm.loadProject(project_id)
         if not project:
             raise HTTPException(status_code=404, detail="Project not found.")
-
+        print(project)
         # Update project attributes from request data
         project.setName(data.get("name", project.getName()))
         project.setOwner(data.get("owner", project.getOwner()))

@@ -123,6 +123,8 @@
 		}
 	}
 	async function saveProject(project_id: string) {
+
+		console.log(project_id);
 		try {
 			const response = await fetch("/api/projects/save", {
 				method: "POST",
@@ -130,7 +132,7 @@
 					"Content-Type": "application/json"
 				},
 				body: JSON.stringify({
-					id: project_id
+					projectID: project_id
 				})
 			});
 

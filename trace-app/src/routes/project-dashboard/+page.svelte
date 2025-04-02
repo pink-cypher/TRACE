@@ -78,16 +78,18 @@
 
 	async function exportToFile(project_id: string, project_title: string) {
 		try {
-			// Fetch data from backend (adjust endpoint as needed)
+			const exportFormat = localStorage.getItem("exportFormat") || "CSV";
+			const extension = exportFormat.toLowerCase();
+			const mimeType = exportFormat === "CSV" ? "text/csv" : "application/xml";
+
 			const response = await fetch("/api/projects/export", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json"
 				},
-                // id and CSV are hardcode to test 
 				body: JSON.stringify({
-					id: project_id, 
-					format: "CSV"
+					id: project_id,
+					format: exportFormat
 				})
 			});
 
@@ -95,24 +97,23 @@
 				throw new Error("Export failed from backend");
 			}
 
-			// Get CSV content from backend response
 			const data = await response.text();
 			content = data;
-			// Show Save Dialog
-			// @ts-ignore: showSaveFilePicker is not recognized by TypeScript
+
+			// @ts-ignore
 			const handle = await window.showSaveFilePicker({
-				suggestedName: project_title+"_project_data.csv",
+				suggestedName: `${project_title}_project_data.${extension}`,
 				types: [
 					{
-						description: "CSV File",
+						description: `${exportFormat} File`,
 						accept: {
-							"text/csv": [".csv"]
+							[mimeType]: [`.${extension}`]
 						}
 					}
 				]
 			});
-		// Write content to chosen file
-		const writable = await handle.createWritable();
+
+			const writable = await handle.createWritable();
 			await writable.write(content);
 			await writable.close();
 
@@ -122,6 +123,7 @@
 			alert("Export failed. See console for details.");
 		}
 	}
+
 	async function saveProject(project_id: string) {
 		try {
 			const response = await fetch("/api/projects/save", {

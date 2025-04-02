@@ -10,18 +10,19 @@ router = APIRouter()
 @router.post("/lock")
 async def toggleLock(request: Request):
     data = await request.json()
-    print(data)
+    #print(data)
     id = data.get('id')
+    #print({id})
     lock = data.get('lock')
-    
-    if not id or not lock:
+    #print({lock})
+    if not id or lock is None:
         raise HTTPException(status_code=400, detail="Missing required fields")
 
     pm = ProjectManager()
     success = pm.toggleLock(projectID=id,lockState=lock)
     return {"success": success}
 
-@router.post("/")
+@router.post("/status")
 async def toggleProjectStatus(request: Request):
     data = await request.json()
     id = data.get("id")
@@ -135,10 +136,10 @@ async def deleteProject(request: Request):
     data = await request.json()
     project_id = data.get("projectID")
 
-    print(project_id)
+    #print(project_id)
     if not project_id:
         raise HTTPException(status_code=400, detail="Project ID is required.")
-    print(project_id)
+    #print(project_id)
     try:
         success = pm.deleteProject(project_id)
         if success:
@@ -150,3 +151,36 @@ async def deleteProject(request: Request):
     except Exception as e :
         print(f"Error occured delteing project{str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+@router.post("/save")
+async def saveProject(request: Request):
+    pm = ProjectManager()
+    data = await request.json()
+    print(data)
+    project_id = data.get("projectID")
+    print(project_id)
+    if not project_id:
+        raise HTTPException(status_code=400, detail="Project ID is required.")
+    try:
+        project = pm.loadProject(project_id)
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found.")
+
+        # Update project attributes from request data
+        project.setName(data.get("name", project.getName()))
+        project.setOwner(data.get("owner", project.getOwner()))
+        project.setTimestamp(data.get("timestamp", project.getTimestamp()))
+        project.setStatus(data.get("status", project.getStatus()))
+        project.setLockStatus(data.get("lockStatus", project.getLockStatus()))
+        project.setDescription(data.get("description", project.getDescription()))
+        project.setIps(data.get("ips", project.getIps()))
+        project.setPorts(data.get("ports", project.getPorts()))
+
+        success = pm.updateProject(project)
+
+        if success:
+            return {"message": "Project updated successfully."}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to update the project.")
+    except Exception as e:
+        print(f"Error occurred while saving project: {str(e)}")

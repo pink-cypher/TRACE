@@ -122,6 +122,28 @@
 			alert("Export failed. See console for details.");
 		}
 	}
+	async function saveProject(project_id: string) {
+		try {
+			const response = await fetch("/api/projects/save", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify({
+					id: project_id
+				})
+			});
+
+			if (!response.ok) {
+				throw new Error("Save failed from backend");
+			}
+
+			alert("Project saved successfully!");
+		} catch (err) {
+			console.error("Save failed", err);
+			alert("Save failed. See console for details.");
+		}
+	}
 
 
 	function logout() {
@@ -160,6 +182,8 @@
 
 	async function toggleLock(project: Project){
 		const newState = !project.locked
+		project.locked = newState;
+		projects = [...projects];
 		const response = await fetch("/api/projects/lock",{
 			method: "POST",
 			headers: {
@@ -170,8 +194,6 @@
 				lock: newState
 			})
 		})
-
-		project.locked = newState;
 	}
 
   
@@ -314,19 +336,24 @@
 					</div>
 					<div>
 					  <strong>Lock:</strong>
+
+					
 					  <button
 						class={`lock-button ${project.locked ? "locked" : "unlocked"}`}
-
-						on:click={() => toggleLock(project)}
-					  >
+					    on:click={() => { if (role === "Lead") toggleLock(project); }}
+					  	disabled={role !== "Lead"} 
+						>
 						{project.locked ? "Locked" : "Unlocked"}
 					  </button>
+
+
 					</div>
 				  </div>
 	  
 				  <div class="project-actions">
 					<button on:click={() => copyId(project.id)}>Copy ID</button>
 					<button on:click={() => openProject(project.title)}>Open</button>
+					<button on:click={() => saveProject(project.id)}>Save</button>
 					<button on:click={() => exportToFile(project.id,project.title)}>Export</button>
 					<!-- connect export logic -->
 				  </div>

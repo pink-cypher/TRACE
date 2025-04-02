@@ -135,16 +135,16 @@ class DatabaseManager:
                 """
         return True if self.runCypher(cypher, updates, write=True) else False
     
-    def toggleLock(self,id, lockStatus):
+    def toggleLock(self,projectID, lockStatus):
 
         cypher ="""
                 MATCH (project:Project) 
-                WHERE elementId(project) = $id
+                WHERE elementId(project) = $projectID
                 SET project.lockStatus = $lockStatus
                 RETURN project
                 """
         param = {"lockStatus": lockStatus,
-                 "id":id}
+                 "projectID":projectID}
         return True if self.runCypher(cypher, param,write=True) else False
 
     def toggleStatus(self, id, status):

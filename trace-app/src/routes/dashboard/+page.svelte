@@ -8,7 +8,7 @@
 	let role = "";
 	let showSettings = false;
 
-	let projectTab = true;
+	let projectTab = false;
 	let deleteTab = false;
 	let settingTab = false;
 
@@ -97,11 +97,7 @@
 	<!-- Main Content -->
 	<main class="main">
 		<header class="header"></header>
-		{#if projectTab}
-			Project stuff
-		{:else if deleteTab}
-			<p>Delete Project Logic</p>
-		{/if}
+		<p>Main Dashboard<br>(maybe)</p>
 	</main>
 
 	<SettingsPopup open={showSettings} onClose={() => showSettings = false} />

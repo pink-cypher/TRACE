@@ -1,5 +1,6 @@
 <script>
     import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
     import { onMount } from 'svelte';
     import SettingsPopup from '$lib/settings/SettingsPopup.svelte';
 
@@ -10,6 +11,7 @@
 
 	let projectTab = false;
 	let deleteTab = false;
+	let backTab   = false;
 	let settingTab = false;
 
     onMount(() => {
@@ -28,8 +30,16 @@
 	function activateTab(tab) {
 		projectTab = tab === 'projects';
 		deleteTab = tab === 'delete';
+		backTab   = tab === 'back';
 		settingTab = tab === 'settings';
 	}
+	function goBack() {
+    if (window.history.length > 1) {
+      window.history.back(); // Go to the previous page dynamically
+    } else {
+      goto('/'); // Fallback if no history
+    }
+  }
 </script>
 
 <div class="layout">
@@ -68,6 +78,26 @@
 					</button>
 				</div>
 			{/if}
+
+			<div class="backbutton">
+				<button
+					class:active-icon={backTab}
+					on:click={() => {
+						goBack();
+						activateTab("Back");
+						showBack = true;
+
+					}}
+					title="Back"
+					
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+						<path stroke-linecap="round" stroke-linejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" />
+				  	</svg>
+					<span class="icon-label">Back</span>
+				</button>
+			</div>
+
 
 			<div class="settings">
 				<button
@@ -120,6 +150,11 @@
 		border-bottom-right-radius: 10px;
 		color: #fff;
 		box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+		position: fixed;
+		top: 0;
+		left: 0;
+
+		height: 100vh;
 	}
 
 	.user-info {
@@ -165,6 +200,25 @@
 		justify-content: center;
 		position: relative;
 		flex-direction: column;
+	}
+	.sidebar button,
+	.backbutton{
+		background: none;
+		border: none;
+		cursor: pointer;
+		transition: transform 0.2s ease, background 0.2s;
+		padding: 0.75rem;
+		border-radius: 12px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		position: relative;
+		flex-direction: column;
+	}
+	.sidebar button:hover,
+	.backbutton button:hover {
+		transform: scale(1.3);
+		background: rgba(255, 255, 255, 0.12);
 	}
 
 	.sidebar-section button:hover,
@@ -223,17 +277,18 @@
 	background: #1e293b;
  }
 
-	/* .main {
+	 .main-content {
 		flex: 1;
 		padding: 2rem;
+		margin-left: 80px;
 	}
 
-	.header {
+	/* .header {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
 		margin-bottom: 2rem;
-	} */
+	}  */
 	/* Main content styles */
   /*  */
 

@@ -6,9 +6,6 @@ from api.crawler_routes import router as crawler_router
 from api.ai_routes import router as ai_router
 from api.http_routes import router as http_router
 
-# from api.test_routes import router as test_router
-
-
 app = FastAPI()
 
 # Allow frontend to access backend during development

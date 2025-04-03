@@ -7,6 +7,11 @@
     let role = "";
     let showSettings = false;
 
+
+	let projectTab = false;
+	let deleteTab = false;
+	let settingTab = false;
+
     onMount(() => {
         initials = localStorage.getItem("initials");
         role = localStorage.getItem("role");
@@ -20,6 +25,11 @@
         localStorage.clear();
         goto("/login");
     }
+	function activateTab(tab) {
+		projectTab = tab === 'projects';
+		deleteTab = tab === 'delete';
+		settingTab = tab === 'settings';
+	}
 </script>
 
 <div class="layout">

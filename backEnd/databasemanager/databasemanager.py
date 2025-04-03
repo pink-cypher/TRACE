@@ -111,7 +111,6 @@ class DatabaseManager:
     def getAllProjects(self):
         cypher = """
             MATCH (p:Project)
-            WHERE p.status = 'Active'
             RETURN {
                 id: elementId(p),
                 name: p.name,

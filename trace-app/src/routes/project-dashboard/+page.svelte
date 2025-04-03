@@ -184,9 +184,7 @@
 	}
   
 
-	$: filteredProjects = projects.filter((p) =>
-      p.title.toLowerCase().includes(search.toLowerCase())
-    );
+	
 	function filterProjects() {
 		filteredProjects = projects.filter((project) => {
 		const matchesSearch = search
@@ -195,18 +193,17 @@
 			: true;
 
 		const matchesLocked = showLocked ? project.locked : true;
-		const matchesArchived = showArchived ? project.status === "Archived" : true;
+		console.log("status: ", project.status);
+		console.log("showArchived: ", showArchived);
+		const matchesArchived = showArchived ? project.status?.toLowerCase() === "archived" : true;
 
 		return matchesSearch && matchesLocked && matchesArchived;
 		});
+		console.log("Filtered Projects:", filteredProjects);
  	}
 
   
-    // function toggleLock(project: Project) {
-    //   project.locked = !project.locked;
-	//   projects = [...projects];
-    // }
-
+   
 	async function toggleLock(project: Project){
 		const newState = !project.locked
 		project.locked = newState;

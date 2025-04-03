@@ -3,24 +3,27 @@ from fastapi.responses import StreamingResponse
 import io
 from projectManager.projectManager import ProjectManager
 from Analyst.analyst import Analyst
-# from ProjectManager.project import Project
+import csv
+import xml.etree.ElementTree as ET
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("/lock")
 async def toggleLock(request: Request):
     data = await request.json()
+    #print(data)
     id = data.get('id')
+    #print({id})
     lock = data.get('lock')
-    
-    if not id or not lock:
+    #print({lock})
+    if not id or lock is None:
         raise HTTPException(status_code=400, detail="Missing required fields")
 
     pm = ProjectManager()
-    success = pm.toggleLock(id,lockState=lock)
+    success = pm.toggleLock(projectID=id,lockState=lock)
     return {"success": success}
 
-@router.post("/")
+@router.post("/status")
 async def toggleProjectStatus(request: Request):
     data = await request.json()
     id = data.get("id")
@@ -55,21 +58,51 @@ async def export_project(request: Request):
             media_type="text/csv",
             headers={"Content-Disposition": f"attachment; filename=project_{id}.csv"}
         )
+    elif format.upper() == "XML":
+        csv_result = pm.exportProjectCSV(id)
+        if not csv_result:
+            raise HTTPException(status_code=404, detail="Project not found")
+
+        csv_data = csv_result["csv"]
+
+        # Convert CSV string to XML in-memory
+        reader = csv.DictReader(io.StringIO(csv_data))
+        root = ET.Element("records")
+
+        for row in reader:
+            record = ET.SubElement(root, "record")
+            for key, value in row.items():
+                elem = ET.SubElement(record, key)
+                elem.text = value
+
+        xml_io = io.StringIO()
+        ET.ElementTree(root).write(xml_io, encoding='unicode', xml_declaration=True)
+        xml_io.seek(0)
+
+        return StreamingResponse(
+            xml_io,
+            media_type="application/xml",
+            headers={"Content-Disposition": f"attachment; filename=project_{id}.xml"}
+        )
+
     else:
         raise HTTPException(status_code=400, detail="Unsupported format")
 
-@router.post("/")
-async def saveProject(request: Request):
-    pass
 
 @router.post("/create")
 async def create_project(request: Request):
     data = await request.json()
-    name = data.get("name")
+    #print(data)
+    name = data.get("projectName")
+    #print(name)
     description = data.get("description", "")
+    #print(description)
     ips = data.get("ips", [])
+    #print(ips)
     ports = data.get("ports", [])
-    initials = data.get("initials")  
+    #print(ports)
+    initials = data.get("owner")
+    #print(initials)  
 
     if not name or not initials:
         raise HTTPException(status_code=400, detail="Missing required fields")
@@ -128,10 +161,10 @@ async def deleteProject(request: Request):
     data = await request.json()
     project_id = data.get("projectID")
 
-    print(project_id)
+    #print(project_id)
     if not project_id:
         raise HTTPException(status_code=400, detail="Project ID is required.")
-    print(project_id)
+    #print(project_id)
     try:
         success = pm.deleteProject(project_id)
         if success:
@@ -143,3 +176,36 @@ async def deleteProject(request: Request):
     except Exception as e :
         print(f"Error occured delteing project{str(e)}")
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+    
+@router.post("/save")
+async def saveProject(request: Request):
+    pm = ProjectManager()
+    data = await request.json()
+    print(data)
+    project_id = data.get("projectID")
+    print(project_id)
+    if not project_id:
+        raise HTTPException(status_code=400, detail="Project ID is required.")
+    try:
+        project = pm.loadProject(project_id)
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found.")
+        print(project)
+        # Update project attributes from request data
+        project.setName(data.get("name", project.getName()))
+        project.setOwner(data.get("owner", project.getOwner()))
+        project.setTimestamp(data.get("timestamp", project.getTimestamp()))
+        project.setStatus(data.get("status", project.getStatus()))
+        project.setLockStatus(data.get("lockStatus", project.getLockStatus()))
+        project.setDescription(data.get("description", project.getDescription()))
+        project.setIps(data.get("ips", project.getIps()))
+        project.setPorts(data.get("ports", project.getPorts()))
+
+        success = pm.updateProject(project)
+
+        if success:
+            return {"message": "Project updated successfully."}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to update the project.")
+    except Exception as e:
+        print(f"Error occurred while saving project: {str(e)}")

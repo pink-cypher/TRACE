@@ -4,9 +4,7 @@ from api.analyst_routes import router as analyst_router
 from api.project_routes import router as project_router
 from api.crawler_routes import router as crawler_router
 from api.ai_routes import router as ai_router
-
-# from api.test_routes import router as test_router
-
+from api.http_routes import router as http_router
 
 app = FastAPI()
 
@@ -30,5 +28,9 @@ app.include_router(analyst_router, prefix="/api/analyst")
 app.include_router(crawler_router, prefix="/api/cralwer")
 # Prefix all ai routes with /api/ai
 app.include_router(ai_router, prefix="/api/ai")
+
+
+# Team4
+app.include_router(http_router, prefix="/api/http")
 
 

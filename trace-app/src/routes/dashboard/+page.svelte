@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { onMount } from "svelte";
 	import SettingsPopup from '$lib/settings/SettingsPopup.svelte';
-
+	
 
 	let initials = "";
 	let role = "";
@@ -11,6 +11,15 @@
 	let projectTab = false;
 	let deleteTab = false;
 	let settingTab = false;
+
+	let tools = [
+    { name: "Web Crawler", progress: 0, status: "Ready to Go!" },
+    { name: "ML Generator", progress: 0, status: "Ready to Go!" },
+    { name: "Parameter Fuzzing", progress: 0, status: "Ready to Go!" },
+    { name: "Brute Force Tester", progress: 0, status: "Ready to Go!" },
+    { name: "SQL Injection", progress: 0, status: "Ready to Go!" },
+    { name: "HTTP Tester", progress: 0, status: "Ready to Go!" }
+  ];
 
 	onMount(() => {
 		initials = localStorage.getItem("initials");
@@ -30,6 +39,25 @@
 		projectTab = tab === 'projects';
 		deleteTab = tab === 'delete';
 		settingTab = tab === 'settings';
+	}
+	/**
+   	* @param {{ name: any; progress: any; status?: string; }} tool
+	*/
+	function handleAction(tool) {
+		// Only act if progress is 0 ("Set Up" button)
+		if (tool.progress === 0) {
+		if (tool.name === "Web Crawler") {
+			goto('/tools/crawler');
+		} else if (tool.name === "ML Generator") {
+			goto('/tools/ml');
+		}else if (tool.name === "HTTP Tester") {
+			goto('/tools/httpClient');
+		} else {
+			alert("This tool is not ready yet.");
+		}
+		} else {
+		// If progress is non-zero, you could display the tool's dashboard or details.
+		}
 	}
 </script>
 
@@ -95,10 +123,26 @@
 	</aside>
 
 	<!-- Main Content -->
-	<main class="main">
-		<header class="header"></header>
-		<p>Main Dashboard<br>(maybe)</p>
-	</main>
+	<main class="main-content">
+		<header class="crawler-header">
+		  <h1>Tool Dashboard</h1>
+		  <p class="subheader">Select a tool from the menu below.</p>
+		</header>
+		
+		{#each tools as tool}
+		  <div class="tool-item">
+			<span>{tool.name}</span><br>
+			<div class="progress-bar">
+			  <div class="progress-fill" style="width: {tool.progress}%;"></div>
+			</div>
+			<span class="status">{tool.status}</span>
+			<button class="info-btn">Info</button>
+			<button class="action-btn" on:click={() => handleAction(tool)}>
+			  {tool.progress === 0 ? 'Set Up' : 'View'}
+			</button>
+		  </div>
+		{/each}
+	  </main>
 
 	<SettingsPopup open={showSettings} onClose={() => showSettings = false} />
 </div>
@@ -225,7 +269,7 @@
 		background: #1e293b;
 	}
 
-	.main {
+	/* .main {
 		flex: 1;
 		padding: 2rem;
 	}
@@ -235,5 +279,335 @@
 		align-items: center;
 		justify-content: space-between;
 		margin-bottom: 2rem;
-	}
+	} */
+	/* Main content styles */
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+  
+    .crawler-header {
+      margin-bottom: 30px;
+      position: relative;
+    }
+  
+    .crawler-header h1 {
+      font-size: 24px;
+      margin: 0;
+      margin-bottom: 5px;
+    }
+  
+    .subheader {
+      font-size: 16px;
+      color: #718096;
+    }
+
+	/* unknown stuff from team 11s stuff*/
+	
+    /* Progress indicator */
+    .progress-indicator {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+      max-width: 600px;
+    }
+  
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+  
+    .step-circle {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background-color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+  
+    .progress-step.active .step-circle {
+      background-color: #48BB78;
+      color: white;
+    }
+  
+    .progress-step.completed .step-circle {
+      background-color: #38A169;
+      color: white;
+    }
+  
+    .progress-step span {
+      font-size: 12px;
+      color: #718096;
+    }
+  
+    .progress-line {
+      flex: 1;
+      height: 2px;
+      background-color: #e2e8f0;
+      margin: 0 10px;
+      margin-bottom: 30px;
+    }
+  
+    .progress-line.completed {
+      background-color: #38A169;
+    }
+  
+    /* Form styles */
+    .crawler-configuration {
+      background-color: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  
+    .form-group {
+      margin-bottom: 20px;
+    }
+  
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #4A5568;
+    }
+  
+    .required {
+      color: #E53E3E;
+    }
+  
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+  
+    .form-group input:focus {
+      outline: none;
+      border-color: #4299e1;
+      box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+    }
+  
+    .btn {
+      padding: 10px 15px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.2s;
+    }
+  
+    .start-btn {
+      background-color: #4299e1;
+      color: white;
+    }
+  
+    .start-btn:hover {
+      background-color: #3182ce;
+    }
+  
+    .secondary-btn {
+      background-color: #e2e8f0;
+      color: #4A5568;
+    }
+  
+    .secondary-btn:hover {
+      background-color: #cbd5e0;
+    }
+  
+    .error-message {
+      color: #E53E3E;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+  
+    /* Running and Results styles */
+    .crawler-running, .crawler-results {
+      background-color: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  
+    .scan-progress {
+      margin-bottom: 30px;
+    }
+  
+    .scan-progress-icon {
+      display: inline-block;
+      margin-right: 10px;
+    }
+  
+    .scan-circle {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background-color: #48BB78;
+      position: relative;
+    }
+  
+    .scan-circle::after {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      border: 2px solid #48BB78;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+  
+    .scan-progress-text {
+      display: inline-block;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+  
+    .scanning-text {
+      color: #718096;
+      font-weight: normal;
+    }
+  
+    .scan-progress-bar {
+      height: 6px;
+      background-color: #e2e8f0;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+  
+    .scan-progress-fill {
+      height: 100%;
+      background-color: #48BB78;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+  
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+  
+    .metric-box {
+      background-color: #f7fafc;
+      padding: 15px;
+      border-radius: 4px;
+    }
+  
+    .metric-label {
+      font-size: 14px;
+      color: #718096;
+      margin-bottom: 5px;
+    }
+  
+    .metric-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+  
+    .results-table {
+      margin-bottom: 30px;
+      overflow-x: auto;
+    }
+  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+  
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+  
+    thead tr {
+      background-color: #f7fafc;
+    }
+  
+    th {
+      font-weight: 600;
+      color: #4A5568;
+    }
+  
+    tbody tr:nth-child(even) {
+      background-color: #f7fafc;
+    }
+  
+    .url-cell {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+    }
+  
+    .spacer {
+      flex: 1;
+    }
+  
+    .terminal-btn {
+      background-color: #edf2f7;
+    }
+  
+    .export-icon {
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .main-content {
+      flex: 1;
+      padding: 30px;
+    }
+    .tool-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: #e2e8f0;
+      border-radius: 3px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #48BB78;
+      border-radius: 3px;
+    }
+    .info-btn, .action-btn {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .info-btn {
+      background: #e2e8f0;
+    }
+    .action-btn {
+      background: #4299e1;
+      color: white;
+    }
 </style>

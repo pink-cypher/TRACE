@@ -3,8 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.analyst_routes import router as analyst_router
 from api.project_routes import router as project_router
 from api.crawler_routes import router as crawler_router
+from api.setting_routes import router as setting_router
 from api.ai_routes import router as ai_router
 from api.http_routes import router as http_router
+
 
 app = FastAPI()
 
@@ -22,6 +24,7 @@ app.add_middleware(
 app.include_router(project_router, prefix="/api/projects")
 # Prefix all analyst routes with /api/analyst
 app.include_router(analyst_router, prefix="/api/analyst")
+app.include_router(setting_router, prefix="/api/settings")
 
 # Team11
 # Prefix all crawler routes with /api/crawler

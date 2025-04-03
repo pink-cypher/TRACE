@@ -42,7 +42,7 @@
 		  localStorage.setItem("role", data.role);
   
 		  // Use SvelteKit's `goto` for redirection
-		  goto('/dashboard');
+		  goto('/project-dashboard');
 		}
 	  } catch (err) {
 		console.error(err);

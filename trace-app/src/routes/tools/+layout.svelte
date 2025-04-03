@@ -63,7 +63,7 @@
 					<span class="icon-label">Projects</span>
 				</button>
 			</div>
-
+<!-- 
 			{#if role === "Lead"}
 				<div class="sidebar-section">
 					<button
@@ -77,7 +77,7 @@
 						<span class="icon-label">Delete Project</span>
 					</button>
 				</div>
-			{/if}
+			{/if} -->
 
 			<div class="backbutton">
 				<button

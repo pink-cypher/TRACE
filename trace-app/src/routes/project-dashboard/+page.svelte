@@ -16,7 +16,8 @@
     };
 
 	let content = "";
-	
+
+	// popup variables
 	let showDeletePopup = false;
 	let showCreatePopup = false;
 	
@@ -29,10 +30,16 @@
 	let role = "";
 	let showSettings = false;
 
+	// Tabs
 	let projectTab = true;
 	let deleteTab = false;
 	let settingTab = false;
 	let CreateTab = false;
+
+	//filter variables
+	let filteredProjects: Project[] = [];
+	let showLocked = false;
+	let showArchived = false;
 
 	onMount(() => {
 		initials = localStorage.getItem("initials");
@@ -68,6 +75,8 @@
           startDate: item.timestamp,
           locked: item.lockStatus
         }));
+		//filter projects
+		filteredProjects = [...projects];
       } catch (err) {
         error = "Failed to load projects.";
         console.error(err);
@@ -178,6 +187,20 @@
 	$: filteredProjects = projects.filter((p) =>
       p.title.toLowerCase().includes(search.toLowerCase())
     );
+	function filterProjects() {
+		filteredProjects = projects.filter((project) => {
+		const matchesSearch = search
+			? project.title.toLowerCase().includes(search.toLowerCase()) ||
+			project.description.toLowerCase().includes(search.toLowerCase())
+			: true;
+
+		const matchesLocked = showLocked ? project.locked : true;
+		const matchesArchived = showArchived ? project.status === "Archived" : true;
+
+		return matchesSearch && matchesLocked && matchesArchived;
+		});
+ 	}
+
   
     // function toggleLock(project: Project) {
     //   project.locked = !project.locked;
@@ -207,7 +230,8 @@
     }
   
     function openProject(title: string) {
-      alert(`Opening project: ${title}`);
+    //   alert(`Opening project: ${title}`);
+	  goto("/dashboard");
     }
 
 </script>
@@ -292,13 +316,26 @@
 			<h1>Projects</h1>
 		</header>
 		<p>This is the project dashboard where you can manage all your projects.</p>
+		<!-- Search Bar -->
 		<div class="search-bar">
 			<input
 				type="text"
 				placeholder="Search projects..."
 				bind:value={search}
 				class="input-field"
+				on:input={filterProjects}
 			/>
+		</div>
+		<!-- Filters -->
+		<div class="filters">
+			<label>
+			  <input type="checkbox" bind:checked={showLocked} on:change={filterProjects} />
+			  Show Locked
+			</label>
+			<label>
+			  <input type="checkbox" bind:checked={showArchived} on:change={filterProjects} />
+			  Show Archived
+			</label>
 		</div>
 		{#if showDeletePopup}
   			<DeleteProjectPopup on:close={closeDeletePopup} />

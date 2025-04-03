@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, HTTPException, Form
+from fastapi import APIRouter, Request, Form
 from services.scanningManager.scan_service import ScanService
 
 scan_service = ScanService()
@@ -17,10 +17,6 @@ async def execute_http_request(
     request_body: str = Form(None),
     additional_params: str = Form(None)
 ):
-    
-    project = project_service.get_project_by_id(project_id)
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
 
     # Execute the HTTP request using the provided parameters
     response = scan_service.execute_http_request(

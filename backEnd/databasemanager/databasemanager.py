@@ -29,21 +29,54 @@ class DatabaseManager:
                 RETURN analyst
                 """
         return bool(self.runCypher(cypher, {"initials": initials}))
+    
+    # Create analyst an their settings node
     def createAnalyst(self, initials, role):
         cypher = """
             CREATE (analyst:Analyst {
                 initials: $initials, 
                 role: $role
             })
+            CREATE (setting:Setting {
+                export: 'CSV', 
+                darkMode: false
+            })
+            CREATE (analyst)-[:HAS_SETTING]->(setting)
             RETURN analyst {.*, id: elementid(analyst)}
-            """
+        """
         
         param = {
-                "initials": initials,
-                "role": role
-            }
+            "initials": initials,
+            "role": role
+        }
+        
         analystResult = self.runCypher(cypher, param, write=True)
-        return analystResult[0].get("analyst") if analystResult else None 
+        return analystResult[0].get("analyst") if analystResult else None
+    
+    # UPDATE per user settings
+    def updateSetting(self, initials, export=None, darkMode=None):
+        cypher = """
+            MATCH (a:Analyst {initials: $initials})-[:HAS_SETTING]->(s:Setting)
+            SET 
+                s.export = COALESCE($export, s.export),
+                s.darkMode = COALESCE($darkMode, s.darkMode)
+            RETURN s.export AS export, s.darkMode AS darkMode
+        """
+
+        params = {
+            "initials": initials,
+            "export": export,
+            "darkMode": darkMode
+        }
+
+        result = self.runCypher(cypher, params, write=True)
+        return result[0].get("s") if result else None
+
+
+
+
+
+
     def loadAnalyst(self, initials):
         cypher = """
                 MATCH (analyst:Analyst {initials: $initials})

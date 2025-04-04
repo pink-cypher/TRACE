@@ -32,7 +32,6 @@ app.include_router(crawler_router, prefix="/api/cralwer")
 # Prefix all ai routes with /api/ai
 app.include_router(ai_router, prefix="/api/ai")
 
-
 # Team4
 app.include_router(http_router, prefix="/api/http")
 

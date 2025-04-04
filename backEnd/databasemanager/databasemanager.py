@@ -23,13 +23,37 @@ class DatabaseManager:
             print(f"ERROR: Transaction failed - {e}")
             raise e 
 
+
+    '''
+    Analyst sections
+    '''
     def checkAnalyst(self, initials):
         cypher = """
                 MATCH (analyst:Analyst {initials: $initials})
                 RETURN analyst
                 """
         return bool(self.runCypher(cypher, {"initials": initials}))
-    
+    def loadAnalyst(self, initials):
+        cypher = """
+                MATCH (analyst:Analyst {initials: $initials})
+                RETURN analyst {.*, id: elementid(analyst)}
+                """
+        result = self.runCypher(cypher, {"initials": initials})
+        return result[0].get('analyst') if result else None
+    def countAnalyst(self):
+        cypher = """MATCH (a:Analyst) RETURN count(a) AS count"""
+        anlaystResult = self.runCypher(cypher)
+        return anlaystResult[0].get('count', 0) if anlaystResult else 0
+    def saveAnalyst(self, initials, role):
+        cypher = """MATCH  (a:Analyst {initials: $initials})
+                    SET a.role = $role
+                    RETURN a
+                 """
+        param = {
+                "initials": initials,
+                "role": role
+            }
+        return True if self.runCypher(cypher, param, write=True) else False
     # Create analyst an their settings node
     def createAnalyst(self, initials, role):
         cypher = """
@@ -53,6 +77,9 @@ class DatabaseManager:
         analystResult = self.runCypher(cypher, param, write=True)
         return analystResult[0].get("analyst") if analystResult else None
     
+    '''
+    Settings section
+    '''
     # UPDATE per user settings
     def updateSetting(self, initials, export=None, darkMode=None):
         cypher = """
@@ -74,31 +101,9 @@ class DatabaseManager:
 
 
 
-
-
-
-    def loadAnalyst(self, initials):
-        cypher = """
-                MATCH (analyst:Analyst {initials: $initials})
-                RETURN analyst {.*, id: elementid(analyst)}
-                """
-        result = self.runCypher(cypher, {"initials": initials})
-        return result[0].get('analyst') if result else None
-    def countAnalyst(self):
-        cypher = """MATCH (a:Analyst) RETURN count(a) AS count"""
-        anlaystResult = self.runCypher(cypher)
-        return anlaystResult[0].get('count', 0) if anlaystResult else 0
-    def saveAnalyst(self, initials, role):
-        cypher = """MATCH  (a:Analyst {initials: $initials})
-                    SET a.role = $role
-                    RETURN a
-                 """
-        param = {
-                "initials": initials,
-                "role": role
-            }
-        return True if self.runCypher(cypher, param, write=True) else False
-
+    '''
+    Project section
+    '''
     def storeProject(self, projectName, description, owner, ips, ports):
         cypher = """
             CREATE (project:Project {
@@ -131,8 +136,6 @@ class DatabaseManager:
         else:
             #print(f"{param}")
             return False
-       
-
     def retrieveProject(self, projectID):
         if projectID:
             cypher = "MATCH (project:Project) WHERE elementId(project)= $projectID RETURN project {.*, id: elementId(project)}"
@@ -165,8 +168,7 @@ class DatabaseManager:
                 SET {set_clause}
                 RETURN project
                 """
-        return True if self.runCypher(cypher, updates, write=True) else False
-    
+        return True if self.runCypher(cypher, updates, write=True) else False   
     def toggleLock(self,projectID, lockStatus):
 
         cypher ="""
@@ -178,7 +180,6 @@ class DatabaseManager:
         param = {"lockStatus": lockStatus,
                  "projectID":projectID}
         return True if self.runCypher(cypher, param,write=True) else False
-
     def toggleStatus(self, id, status):
         cypher ="""
                         MATCH (project:Project) 
@@ -189,7 +190,6 @@ class DatabaseManager:
         param = {"status": status,
                  "id":id}
         return True if self.runCypher(cypher, param,write=True) else False
-
     def exportProjectToCSV(self, id):
         cypher = """
             MATCH (p:Project)
@@ -205,8 +205,7 @@ class DatabaseManager:
                 p.ports AS ports
         """
         result = self.runCypher(cypher, {"id": id})
-        return result 
-    
+        return result     
     def deleteProject(self, projectID):
         cypher = """
                 MATCH (p:Project)
@@ -222,8 +221,7 @@ class DatabaseManager:
         if result and result[0]['deleted']:
             return True
         else:
-            return False
-        
+            return False       
     def archiveProject(self, projectID):
         cypher = """
                 MATCH (project:Project)
@@ -233,5 +231,51 @@ class DatabaseManager:
                 """
         result = self.runCypher(cypher, {'projectID':projectID}, write=True)
         return result and result[0].get('archived', False)
+
+    '''
+    Project Collaborations Sub section
+    '''
+    def addCollaborator(self, lead_initials, analyst_initials, projectID):
+        cypher = """
+            MATCH (lead:Analyst {initials: $lead_initials, role: "Lead"})
+            MATCH (analyst:Analyst {initials: $analyst_initials})
+            MATCH (project:Project)
+            WHERE elementId(project) = $projectID
+            MERGE (analyst)-[:COLLABORATES_ON]->(project)
+            RETURN true AS added
+        """
+        params = {
+            "lead_initials": lead_initials,
+            "analyst_initials": analyst_initials,
+            "projectID": projectID
+        }
+        result = self.runCypher(cypher, params, write=True)
+        return result and result[0].get('added', False)
+
+    def getCollaborators(self, projectID):
+        cypher = """
+            MATCH (analyst:Analyst)-[:COLLABORATES_ON]->(project:Project)
+            WHERE elementId(project) = $projectID
+            RETURN analyst.initials AS initials, analyst.role AS role
+        """
+        result = self.runCypher(cypher, {"projectID": projectID})
+        return [{"initials": r['initials'], "role": r['role']} for r in result] if result else []
+
+    def removeCollaborator(self, lead_initials, analyst_initials, projectID):
+        cypher = """
+            MATCH (lead:Analyst {initials: $lead_initials, role: "lead"})
+            MATCH (analyst:Analyst {initials: $analyst_initials})-[r:COLLABORATES_ON]->(project:Project)
+            WHERE elementId(project) = $projectID
+            DELETE r
+            RETURN true AS removed
+        """
+        params = {
+            "lead_initials": lead_initials,
+            "analyst_initials": analyst_initials,
+            "projectID": projectID
+        }
+        result = self.runCypher(cypher, params, write=True)
+        return result and result[0].get('removed', False)
+
 
 db = DatabaseManager()

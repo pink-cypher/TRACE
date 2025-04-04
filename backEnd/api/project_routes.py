@@ -2,6 +2,7 @@ from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import StreamingResponse
 import io
 from projectManager.projectManager import ProjectManager
+from projectManager.collaboration import CollaborationManager
 from Analyst.analyst import Analyst
 import csv
 import xml.etree.ElementTree as ET
@@ -209,3 +210,17 @@ async def saveProject(request: Request):
             raise HTTPException(status_code=500, detail="Failed to update the project.")
     except Exception as e:
         print(f"Error occurred while saving project: {str(e)}")
+
+
+@router.post("/invite")
+async def inviteCollaborator():
+    pass
+
+@router.post("/listCollaborators")
+async def getAllCollaborators():
+    pass
+
+@router.post("/uninvite")
+async def removeCollaborator():
+    pass
+

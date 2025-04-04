@@ -251,7 +251,6 @@ class DatabaseManager:
         }
         result = self.runCypher(cypher, params, write=True)
         return result and result[0].get('added', False)
-
     def getCollaborators(self, projectID):
         cypher = """
             MATCH (analyst:Analyst)-[:COLLABORATES_ON]->(project:Project)
@@ -260,7 +259,6 @@ class DatabaseManager:
         """
         result = self.runCypher(cypher, {"projectID": projectID})
         return [{"initials": r['initials'], "role": r['role']} for r in result] if result else []
-
     def removeCollaborator(self, lead_initials, analyst_initials, projectID):
         cypher = """
             MATCH (lead:Analyst {initials: $lead_initials, role: "lead"})

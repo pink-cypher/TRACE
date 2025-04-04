@@ -36,7 +36,7 @@ class ProjectManager:
     # Lock status update lock or unlock
     def toggleLock(self, projectID, lockState):
         return db.toggleLock(projectID, lockState)
-    
+
     def toggleStatus(self, id, status):
         return db.toggleStatus(id, status)
     
